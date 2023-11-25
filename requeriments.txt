@@ -1,0 +1,10 @@
+pip install language_tool_python
+pip install deepmultilingualpunctuation
+pip install meteostat
+pip install notion
+pip install notion-database
+pip install obsidiantools
+pip install todoist-api-python
+pip install pyTelegramBotAPI
+pip install SpeechRecognition
+pip install mdutils
