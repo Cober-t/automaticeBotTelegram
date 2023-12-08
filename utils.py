@@ -47,7 +47,6 @@ class Utils:
     def checkDestinationFolderExist(cls, path):
 
         try:
-            print(path)
             subPath = os.path.dirname(path)
             if not os.path.exists(subPath):
                 cls.checkDestinationFolderExist(subPath)
@@ -61,6 +60,7 @@ class Utils:
     def getDictData(cls, message, keysToCheck):
 
         dictResult = {}
+        rawMessage = message
         message = message.lower()
 
         for key in keysToCheck:
@@ -76,11 +76,22 @@ class Utils:
                     startIndexNextProperty = index
                     nearestIndex = index
 
-            value = message[endIndex:startIndexNextProperty]
+            value = rawMessage[endIndex:startIndexNextProperty]
             if startIndexNextProperty == -1:
-                value = message[endIndex:]
+                value = rawMessage[endIndex:]
 
-            finalValue = CheckGrammar.cleanStartAndEnd(value).capitalize()
+            finalValue = CheckGrammar.cleanStartAndEnd(value)
+            finalValue = finalValue[0].capitalize() + finalValue[1:]
             dictResult.update({key: finalValue})
 
         return dictResult
+    
+
+    @classmethod
+    def getFile(cls, fileObject):
+        fileID = fileObject.file_id
+        fileInfo = TelegramBot.instance.get_file(fileID)
+        fileName = fileInfo.file_path.split('/')[-1]
+        downloadedFile = TelegramBot.instance.download_file(fileInfo.file_path)
+
+        return downloadedFile, fileName

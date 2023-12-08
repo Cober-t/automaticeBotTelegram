@@ -17,14 +17,14 @@ class MetheoData:
 
 # OBSIDIAN
 class Obsidian:
-    VAULT_DIRECTORY = "..//ObsidianVault"  # \\Cober\coberstorage\ObsidianVault\
-    NOTE_HOLDER = "../ObsidianVault/test.md" # \\Cober\coberstorage\ObsidianVault\test.md
+    VAULT_DIRECTORY = "C:/Users/Jorge/Documents/ObsidianVault"  # \\Cober\coberstorage\ObsidianVault\
+    NOTE_HOLDER = VAULT_DIRECTORY + "/test.md" # \\Cober\coberstorage\ObsidianVault\test.md
     NOTE_TEMPLATE = "##Date: {{date}}\n ##Tags: \n ##Summary: \n ##References:"
     FOLDER = 'Carpeta'
     TEXT = 'Texto'
     TITLE = 'Titulo'
     TAGS = 'Etiquetas'
-    KEYS = [FOLDER, TEXT, TAGS, TITLE]
+    KEYS = [FOLDER, TEXT, TITLE, TAGS]
 
 
 # TODOIST
@@ -57,22 +57,19 @@ class NotionProterties:
     TEXT = "Texto"
     TAGS = "Etiquetas"
     AUTHOR = "Autor"
-    NOTE = "Nota"
     PAGE = "Pagina"
     CATEGORY = "Categoria"
     AMOUNT = "Cantidad"
     PRICE = "Precio"
-    PROPERTIES = [TITLE, TEXT, TAGS, AUTHOR, NOTE, PAGE, CATEGORY]
+    PROPERTIES = [TITLE, TEXT, TAGS, AUTHOR, PAGE, CATEGORY]
 
 
 class NotionPages:
-    NOTAS = "Notas"
     DIARIO = "Diario"
     APUNTES = "Apuntes"
     GASTOS = "Gastos"
     MEDIA = "Media"
     KEYS = {
-        NOTAS: NotionIDs.NOTAS,
         DIARIO: NotionIDs.DIARIO,
         APUNTES: NotionIDs.APUNTES,
         GASTOS: NotionIDs.GASTOS,
@@ -84,17 +81,17 @@ class Help:
 
     GUIDE = ("Guía", "Guia")
 
-    ALL_KEYS = ("Guía", "Guia", "Referencia", "Referencias", "Tarea", "Tareas",
-           NotionPages.NOTAS, NotionPages.DIARIO, NotionPages.APUNTES, NotionPages.GASTOS, NotionPages.MEDIA)
+    ALL_KEYS = ("Guía", "Guia", "Referencia", "Referencias", "Tarea", "Tareas", "Nota", "Notas",
+                NotionPages.DIARIO, NotionPages.APUNTES, NotionPages.GASTOS, NotionPages.MEDIA)
     
-    MESSAGE = "Formato de los comandos: \n \
-        NOTAS: -- [Titulo, Texto, Etiquetas]\n\n \
-        DIARIO: -- [Titulo, Texto]\n\n\
-        APUNTES: -- [Titulo, Texto, Autor, Pagina]\n\n\
-        MEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]\n\n\
-        TAREAS: -- [Texto, Fecha, Proyecto, Repetir]\n\n\
-        GASTOS: -- ['cantidad' Titulo 'precio']\n\n\
-        REFERENCIA: -- [Ruta, Texto, Etiquetas]"
+    MESSAGE = "Formato de los comandos: \n\
+    \t\tDIARIO: -- [Titulo, Texto]\n\n\
+    \t\tAPUNTES: -- [Titulo, Texto, Autor, Pagina]\n\n\
+    \t\tMEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]\n\n\
+    \t\tTAREAS: -- [Texto, Fecha, Proyecto, Repetir]\n\n\
+    \t\tGASTOS: -- ['cantidad' Titulo 'precio']\n\n\
+    \t\tNOTAS: -- [Carpeta, Titulo, Texto, Etiquetas]\n\n\
+    \t\tREFERENCIAS: -- [retrieve tags from Obsidian]"
 
 
 class JsonHolder:

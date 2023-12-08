@@ -8,3 +8,4 @@ pip install todoist-api-python
 pip install pyTelegramBotAPI
 pip install SpeechRecognition
 pip install mdutils
+pip install gitpython

@@ -1,5 +1,5 @@
 '''Grammar main class'''
-import language_tool_python
+# import language_tool_python
 # from deepmultilingualpunctuation import PunctuationModel
 
 
@@ -7,8 +7,9 @@ class CheckGrammar:
 
     @classmethod
     def checkGrammar(cls, text, language):
-        tool = language_tool_python.LanguageToolPublicAPI(language)
-        return tool.correct(text)
+        # tool = language_tool_python.LanguageToolPublicAPI(language)
+        # return tool.correct(text)
+        return text
 
 
     @classmethod

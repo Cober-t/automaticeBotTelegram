@@ -250,13 +250,11 @@ class NotionApi:
         newProperty.setTitle(title)
         newProperty.setText(text)
 
-        if key == "Notas" and fileData[NotionProterties.TAGS] != []:
-            newProperty.setMultiSelect(fileData[NotionProterties.TAGS])
-        elif key == "Apuntes":
-            newProperty.setText(fileData[NotionProterties.AUTHOR].title())
+        if key == "Apuntes":
+            newProperty.setText(fileData[NotionProterties.AUTHOR].capitalize())
             newProperty.setNumber(fileData[NotionProterties.PAGE])
         elif key == "Media":
-            newProperty.setText(fileData[NotionProterties.AUTHOR].title())
+            newProperty.setText(fileData[NotionProterties.AUTHOR].capitalize())
             newProperty.setNumber(fileData[NotionProterties.NOTE])
             newProperty.setSelect(fileData[NotionProterties.CATEGORY])
 

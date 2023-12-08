@@ -2,6 +2,7 @@
 
 from utils import Utils
 
+from telebot.types import MessageEntity
 from checkGrammarText import CheckGrammar
 from notionAPI import NotionApi
 from todoistAPI import TodoistApi
@@ -12,15 +13,28 @@ from definitions import Help, NotionPages, Obsidian
 class TelegramManager:
 
     @classmethod
-    def manageMessage(cls, text):
+    def manageMessage(cls, messageObject):
 
-        text = CheckGrammar.cleanStartAndEnd(text)
+        links = {}
+        text = messageObject.text
+
+        if messageObject.entities:
+            entities = MessageEntity.to_list_of_dicts(messageObject.entities)
+
+            for entity in entities:
+                startIndex = entity["offset"]
+                endIndex = startIndex + entity["length"]
+                hiperlink = text[startIndex: endIndex]
+                link = entity["url"]
+                links.update({hiperlink: link})
+
+        text = CheckGrammar.cleanStartAndEnd(messageObject.text)
 
         choosenKey = None
         for key in Help.ALL_KEYS:
-            textHolder = text.lower()
+            textHolder = text
 
-            if textHolder.find(key.lower()) == 0:
+            if textHolder.lower().find(key.lower()) == 0:
                 choosenKey = key
                 break
 
@@ -32,23 +46,41 @@ class TelegramManager:
         if choosenKey in Help.GUIDE:
             Utils.sendMessage(Help.MESSAGE)
 
-        elif key in NotionPages.KEYS:
+        elif choosenKey in NotionPages.KEYS:
             databaseID = NotionPages.KEYS[key]
-            NotionApi.createPage(databaseID, key, message)
 
-        elif key in ("Referencia", "Referencias"):
-                
-                obsidianDict = ObsidianApi.manageMessage(message)
+            if message != '':
+                NotionApi.createPage(databaseID, key, message)
+            else:
+                Utils.sendMessage(f"[Error: not message]")
 
-                if obsidianDict:
-                    path = obsidianDict[Obsidian.FOLDER]
+        elif choosenKey in ("Notas, Nota"):
+            
+            ObsidianApi.initVault()
+            obsidianDict = ObsidianApi.manageMessage(message)
+
+            if obsidianDict:
+
+                try:
+                    folder = obsidianDict[Obsidian.FOLDER]
                     title = obsidianDict[Obsidian.TITLE]
                     text = obsidianDict[Obsidian.TEXT]
                     tags = obsidianDict[Obsidian.TAGS].split()
 
-                    ObsidianApi.createNote(path, title, text, tags)
-                else:
-                    Utils.sendMessage(f"[ERROR: Message does not exist]")
+                except IndexError as error:
+                    Utils.sendMessage(f"[ERROR: incorrect key value ({error})]")
+
+                if folder is None:
+                    Utils.sendMessage(f"[ERROR: folder value is empty]")
+                    return
+
+                if text is None:
+                    Utils.sendMessage(f"[ERROR: text field is empty]")
+                    return 
+                
+                ObsidianApi.createNote(folder, title, text, tags, links)
+            else:
+                Utils.sendMessage(f"[ERROR: Message does not exist]")
 
         elif key in ("Tarea", "Tareas"):
                 TodoistApi.manageTodoistTask(message)

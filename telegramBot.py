@@ -11,6 +11,7 @@ class TelegramBot:
     def initBot(cls):
         TelegramBot.instance = TeleBot(Telegram.BOT_TOKEN, disable_notification=True)
 
+
     @classmethod
     def inifinityPolling(cls):
         if TelegramBot.instance is None:
