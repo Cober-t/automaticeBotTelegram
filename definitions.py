@@ -52,7 +52,7 @@ class NotionIDs:
     TASK_LIST  = "116fab72255b40328062fb34bc01e12c"
 
 
-class NotionProterties:
+class NotionProperties:
     TITLE = "Titulo"
     TEXT = "Texto"
     TAGS = "Etiquetas"

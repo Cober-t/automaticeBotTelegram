@@ -9,7 +9,7 @@ from notion_database.properties import Properties
 from utils import Utils
 from checkGrammarText import CheckGrammar
 from todoistAPI import TodoistApi
-from definitions import NotionIDs, NotionPages, NotionProterties, JsonHolder, Todoist
+from definitions import NotionIDs, NotionPages, NotionProperties, JsonHolder, Todoist
 
 
 # FOR PAGES
@@ -28,19 +28,19 @@ class NotionProperty():
         self.property = Properties()
 
     def setTitle(self, title):
-        self.property.set_title(NotionProterties.TITLE, title)
+        self.property.set_title(NotionProperties.TITLE, title)
 
     def setText(self, text):
-        self.property.set_rich_text(NotionProterties.TEXT, text)
+        self.property.set_rich_text(NotionProperties.TEXT, text)
 
     def setSelect(self, selectOption):
-        self.property.set_select(NotionProterties.CATEGORY, selectOption)
+        self.property.set_select(NotionProperties.CATEGORY, selectOption)
 
     def setMultiSelect(self, tags):
-        self.property.set_multi_select(NotionProterties.TAGS, tags)
+        self.property.set_multi_select(NotionProperties.TAGS, tags)
 
     def setNumber(self, number):
-        self.property.set_number(NotionProterties.PAGE, number)
+        self.property.set_number(NotionProperties.PAGE, number)
     
     def setCheckbox(self, checked):
         self.property.set_checkbox("checkbox", checked)
@@ -76,7 +76,7 @@ class NotionUtils:
 
         for propertyValue in properties:
 
-            if propertyValue['name'] in (NotionProterties.TAGS, NotionProterties.CATEGORY):
+            if propertyValue['name'] in (NotionProperties.TAGS, NotionProperties.CATEGORY):
 
                 if "multi_select" in propertyValue.keys():
                     values = [option["name"] for option in propertyValue["multi_select"]["options"]]
@@ -134,18 +134,7 @@ class NotionApi:
                 fileData.close()
                 return data
         except RuntimeError as error:
-            Utils.sendMessage(f"[ERROR: {error}]")
-
-
-    @classmethod
-    def getNotionJSONBillHolder(cls):
-        try:
-            with open("./data/notionDatabaseBillHolder.json", 'r', encoding='utf8') as fileData:
-                data = json.load(fileData)
-                fileData.close()
-                return data
-        except RuntimeError as error:
-            Utils.sendMessage(f"[ERROR: {error}]")
+            Utils.sendMessage(f"[ERROR: {error}]")       
 
 
     @classmethod
@@ -156,13 +145,11 @@ class NotionApi:
 
         if NotionPages.GASTOS in key:
 
-            fileData = cls.getNotionJSONBillHolder()
-            fileData = cls.formatGastos(fileData, message)
-            Utils.writeJSON(fileData)
-            cls.createBillProperties(ID, fileData)
+            fileData = NotionApi.formatGastos(message)
+            NotionApi.createBillProperties(fileData)
 
         else:
-            fileData = cls.getNotionJSONHolder()
+            fileData = NotionApi.getNotionJSONHolder()
             message = message.lower()
 
             databasePropertyNames = NotionUtils.getPropertyNames(ID)
@@ -170,7 +157,7 @@ class NotionApi:
 
             propertiesToCheck = []
             for propertyName in databasePropertyNames:
-                if propertyName in NotionProterties.PROPERTIES and propertyName.lower() in message:
+                if propertyName in NotionProperties.PROPERTIES and propertyName.lower() in message:
                     propertiesToCheck.append(propertyName)
                 elif propertyName != "Created time":
                     Utils.sendMessage(f"[ERROR: Your message does not have the database property {propertyName}]")
@@ -196,10 +183,10 @@ class NotionApi:
 
             # dictData = Utils.getDictData(message, propertiesToCheck)
 
-                if propertyName == NotionProterties.NOTE or propertyName == NotionProterties.PAGE:
+                if propertyName == NotionProperties.NOTE or propertyName == NotionProperties.PAGE:
                     value = int(re.search(r'\d+', value)[0])
 
-                elif propertyName == NotionProterties.TAGS:
+                elif propertyName == NotionProperties.TAGS:
                     tagsTask = []
                     tags = NotionUtils.getTagsPropertyValues(ID)
                     for tag in tags:
@@ -207,7 +194,7 @@ class NotionApi:
                             tagsTask.append(tag)
                     value = tagsTask
 
-                elif propertyName == NotionProterties.CATEGORY:
+                elif propertyName == NotionProperties.CATEGORY:
                     tags = NotionUtils.getTagsPropertyValues(ID)
                     for tag in tags:
                         if tag in value:
@@ -216,79 +203,64 @@ class NotionApi:
                 fileData[propertyName] = value
 
             Utils.writeJSON(fileData)
-            properties = cls.createProperties(key, fileData)
+            properties = NotionApi.createProperties(key, fileData)
             NotionUtils.createPage(ID, properties)
 
 
     @classmethod
-    def createBillProperties(cls, databaseID, file):
-        titles = file[NotionProterties.TITLE]
-        amounts = file[NotionProterties.AMOUNT]
-        prices = file[NotionProterties.PRICE]
+    def createBillProperties(cls, fileData):
+        title = fileData[NotionProperties.TITLE]
+        amount = fileData[NotionProperties.AMOUNT]
+        price = fileData[NotionProperties.PRICE].replace(',', '.')
 
-        if len(titles) == len(amounts) == len(prices):
-            i = 0
-            numPagesToCreate = len(titles)
-            while i < numPagesToCreate:
-                properties = Properties()
-                properties.set_title(NotionProterties.TITLE, titles[i])
-                properties.set_number(NotionProterties.AMOUNT, int(amounts[i]))
-                properties.set_number(NotionProterties.PRICE, float(prices[i]))
-                NotionUtils.P.create_page(database_id=databaseID, properties=properties)
-                i += 1
-        else:
-            Utils.sendMessage("Bad formated JSON")
+        try:
+            properties = Properties()
+            properties.set_number(NotionProperties.AMOUNT, int(amount))
+            properties.set_title(NotionProperties.TITLE, title)
+            properties.set_number(NotionProperties.PRICE, float(price))
+            NotionUtils.P.create_page(database_id=NotionIDs.GASTOS, properties=properties)
+        except RuntimeError as error:
+            Utils.sendMessage(f"[ERROR: bad formatted json {error}]")
 
 
     @classmethod
     def createProperties(cls, key, fileData):
 
         newProperty = NotionProperty()
-        title = Utils.fixFullText(fileData[NotionProterties.TITLE])
-        text = Utils.fixFullText(fileData[NotionProterties.TEXT])
+        title = Utils.fixFullText(fileData[NotionProperties.TITLE])
+        text = Utils.fixFullText(fileData[NotionProperties.TEXT])
 
         newProperty.setTitle(title)
         newProperty.setText(text)
 
         if key == "Apuntes":
-            newProperty.setText(fileData[NotionProterties.AUTHOR].capitalize())
-            newProperty.setNumber(fileData[NotionProterties.PAGE])
+            newProperty.setText(fileData[NotionProperties.AUTHOR].capitalize())
+            newProperty.setNumber(fileData[NotionProperties.PAGE])
         elif key == "Media":
-            newProperty.setText(fileData[NotionProterties.AUTHOR].capitalize())
-            newProperty.setNumber(fileData[NotionProterties.NOTE])
-            newProperty.setSelect(fileData[NotionProterties.CATEGORY])
+            newProperty.setText(fileData[NotionProperties.AUTHOR].capitalize())
+            newProperty.setNumber(fileData[NotionProperties.NOTE])
+            newProperty.setSelect(fileData[NotionProperties.CATEGORY])
 
         return newProperty
 
 
     @classmethod
-    def formatGastos(cls, fileData, message):
+    def formatGastos(cls, message):
         i = 0
         text = ''
+        fileData = ''
+        try:
+            with open("./data/notionDatabaseBillHolder.json", 'r', encoding='utf8') as data:
+                fileData = json.load(data)
+                data.close()
+        except RuntimeError as error:
+            Utils.sendMessage(f"[ERROR: {error}]")
+
         message = CheckGrammar.cleanStartAndEnd(message).split(' ')
-
-        for element in message:
-
-            if element.lower() not in ('euro', 'euros'):
-
-                if i == 0:
-                    i = 1
-                    fileData[NotionProterties.AMOUNT].append(int(CheckGrammar.cleanStartAndEnd(element)))
-
-                elif not re.search('[0-9]', element):
-                    text += element + ' '
-
-                else:
-                    text = Utils.fixFullText(text)
-                    text = CheckGrammar.cleanStartAndEnd(text).capitalize()
-                    fileData[NotionProterties.TITLE].append(text)
-
-                    if "'" in element:
-                        element = float(element.replace("'", '.'))
-                    elif "," in element:
-                        element = float(element.replace(',', '.'))
-
-                    fileData[NotionProterties.PRICE].append(element)
+        fileData[NotionProperties.AMOUNT]= message[0]
+        fileData[NotionProperties.TITLE] = message[1]
+        fileData[NotionProperties.PRICE] = message[2]
+        Utils.writeJSON(fileData)
 
         return fileData
 

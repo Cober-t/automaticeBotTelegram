@@ -2,7 +2,7 @@
 import os
 import json
 
-from definitions import Telegram, NotionProterties
+from definitions import Telegram, NotionProperties
 from checkGrammarText import CheckGrammar
 from telegramBot import TelegramBot
 
@@ -20,7 +20,7 @@ class Utils:
     def writeJSON(cls, result):
 
         filePath = "./data/notionDatabaseHolder.json"
-        if NotionProterties.PRICE in result.keys():
+        if NotionProperties.PRICE in result.keys():
             filePath = "./data/notionDatabaseBillHolder.json"
 
         with open(filePath, 'w', encoding='utf8') as fileData:
