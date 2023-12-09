@@ -6,6 +6,7 @@ from definitions import Telegram
 class TelegramBot:
 
     instance = None
+    lastCommand = None
 
     @classmethod
     def initBot(cls):

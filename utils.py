@@ -17,30 +17,18 @@ class Utils:
 
 
     @classmethod
-    def writeJSON(cls, result):
-
-        filePath = "./data/notionDatabaseHolder.json"
-        if NotionProperties.PRICE in result.keys():
-            filePath = "./data/notionDatabaseBillHolder.json"
-
-        with open(filePath, 'w', encoding='utf8') as fileData:
-            json.dump(result, fileData, indent=4, ensure_ascii=False)
-
-
-    @classmethod
     def fixFullText(cls, text, language='es'):
 
-        if text != '':
+        if text != '' and text is not None:
             text = CheckGrammar.cleanStartAndEnd(text)
             if language == 'es':
                 text = CheckGrammar.checkGrammar(text, language)
-                text = CheckGrammar.checkPuntuaction(text)
-                text = CheckGrammar.checkGrammar(text, language)
+                # text = CheckGrammar.checkPuntuaction(text)
+                # text = CheckGrammar.checkGrammar(text, language)
             elif language == 'en':
                 text = CheckGrammar.checkGrammar(text, language)
 
-        # to remove ending point
-        return text[:-1]
+        return text
 
 
     @classmethod
@@ -65,6 +53,9 @@ class Utils:
 
         for key in keysToCheck:
             startIndex = message.find(key.lower())
+            if startIndex == -1:
+                dictResult.update({key: None})
+                continue
 
             endIndex = startIndex + len(key)
             startIndexNextProperty = -1

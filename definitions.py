@@ -18,8 +18,6 @@ class MetheoData:
 # OBSIDIAN
 class Obsidian:
     VAULT_DIRECTORY = "C:/Users/Jorge/Documents/ObsidianVault"  # \\Cober\coberstorage\ObsidianVault\
-    NOTE_HOLDER = VAULT_DIRECTORY + "/test.md" # \\Cober\coberstorage\ObsidianVault\test.md
-    NOTE_TEMPLATE = "##Date: {{date}}\n ##Tags: \n ##Summary: \n ##References:"
     FOLDER = 'Carpeta'
     TEXT = 'Texto'
     TITLE = 'Titulo'
@@ -56,12 +54,12 @@ class NotionProperties:
     TITLE = "Titulo"
     TEXT = "Texto"
     TAGS = "Etiquetas"
-    AUTHOR = "Autor"
-    PAGE = "Pagina"
     CATEGORY = "Categoria"
     AMOUNT = "Cantidad"
     PRICE = "Precio"
-    PROPERTIES = [TITLE, TEXT, TAGS, AUTHOR, PAGE, CATEGORY]
+    AUTHOR = "Autor"
+    RATING = "Nota"
+    PROPERTIES = [TITLE, TEXT, AMOUNT, PRICE, TAGS, CATEGORY, AUTHOR, RATING]
 
 
 class NotionPages:
@@ -85,28 +83,22 @@ class Help:
                 NotionPages.DIARIO, NotionPages.APUNTES, NotionPages.GASTOS, NotionPages.MEDIA)
     
     MESSAGE = "Formato de los comandos: \n\
-    \t\tDIARIO: -- [Titulo, Texto]\n\n\
-    \t\tAPUNTES: -- [Titulo, Texto, Autor, Pagina]\n\n\
-    \t\tMEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]\n\n\
-    \t\tTAREAS: -- [Texto, Fecha, Proyecto, Repetir]\n\n\
     \t\tGASTOS: -- ['cantidad' Titulo 'precio']\n\n\
-    \t\tNOTAS: -- [Carpeta, Titulo, Texto, Etiquetas]\n\n\
+    \t\tMEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]\n\n\
+    \t\tDIARIO: -- [Titulo, Texto]\n\n\
+    \t\tTAREAS: -- [Texto, Fecha, Proyecto, Repetir]\n\n\
     \t\tREFERENCIAS: -- [retrieve tags from Obsidian]"
 
 
-class JsonHolder:
+class NotionJsonHolder:
+    
     DEFAULT_JSON = {
-        "Titulo": "None",
-        "Texto": "None",
-        "Etiquetas": [],
-        "Autor": "None",
-        "Nota": -1,
-        "Pagina": -1,
-        "Categoria": "None"
-    }
-
-    DEFAULT_JSON_BILL = {
-        "Titulo": [],
-        "Cantidad": [],
-        "Precio": []
+        NotionProperties.TITLE: None,
+        NotionProperties.TEXT: None,
+        NotionProperties.AMOUNT: None,
+        NotionProperties.PRICE : None,
+        NotionProperties.TAGS: None,
+        NotionProperties.CATEGORY: None,
+        NotionProperties.AUTHOR: None,
+        NotionProperties.RATING: None
     }

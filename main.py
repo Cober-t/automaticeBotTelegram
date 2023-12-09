@@ -2,12 +2,14 @@
 import subprocess
 import speech_recognition
 
+
 from utils import Utils
 from telegramBot import TelegramBot
-from telegramAPI import TelegramManager
-from definitions import Obsidian
+from definitions import Obsidian, NotionIDs
 from notionAPI import NotionApi
-
+from todoistAPI import TodoistApi
+from obsidianAPI import ObsidianApi
+from definitions import Help
 
 # # Check daily tasks
 # dtToday = datetime.today()
@@ -25,7 +27,75 @@ from notionAPI import NotionApi
 
 TelegramBot.initBot()
 
+
+@TelegramBot.instance.message_handler(commands=['guia'])
+def commandHelp(messageObject):
+    '''Send help and info about the commands and his format'''
+    Utils.sendMessage(Help.MESSAGE)
+
+# @TelegramBot.instance.message_handler(commands=['gastos'])
+# def commandExpense(messageObject):
+#     '''Entry for page "Gastos"'''
+#     Utils.sendMessage("GASTOS: -- ['cantidad' Titulo 'precio']")
+#     NotionApi.createPage(NotionIDs.GASTOS, messageObject.text)
+
+
+# @TelegramBot.instance.message_handler(commands=['diario'])
+# def commandDiario(messageObject):
+#     '''Entry for page "Diario"'''
+#     Utils.sendMessage("DIARIO: -- [Titulo, Texto]")
+#     NotionApi.createPage(NotionIDs.DIARIO, messageObject.text)
+
+
+# @TelegramBot.instance.message_handler(commands=['multimedia'])
+# def commandMedia(messageObject):
+#     '''Entry for page "Multimedia"'''
+#     Utils.sendMessage("MEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]")
+#     NotionApi.createPage(NotionIDs.MEDIA, messageObject.text)
+
+
+# @TelegramBot.instance.message_handler(commands=['tarea'])
+# def commandNewTask(messageObject):
+#     '''Add a new task to Todoist'''
+#     Utils.sendMessage("TAREAS: -- [Texto, Fecha, Proyecto, Repetir]")
+#     TodoistApi.manageTodoistTask(messageObject.text)
+
+
+@TelegramBot.instance.message_handler(commands=['nota'])
+def commandNoteObsidian(messageObject):
+    '''Create a new note in Obsidian'''
+    Utils.sendMessage("REFERENCIAS: -- [retrieve tags from Obsidian]")
+    ObsidianApi.initVault()
+    ObsidianApi.createNote(messageObject)
+
+
+@TelegramBot.instance.message_handler(commands=['update'])
+def commandUpdate(messageObject):
+    '''Update the API on the Raspberry'''
+    print(f'Update')
+
+
 # Handler messages
+@TelegramBot.instance.message_handler(content_types=['text'])
+def message_handler(messageObject):
+
+    if messageObject.text[0] == "/":
+        TelegramBot.lastCommand = messageObject.text
+        return
+    
+    if TelegramBot.lastCommand == "/gastos":
+        NotionApi.createPage(NotionIDs.GASTOS, messageObject.text)
+        
+    elif TelegramBot.lastCommand == "/diario":
+        NotionApi.createPage(NotionIDs.DIARIO, messageObject.text)
+        
+    elif TelegramBot.lastCommand == "/media":
+        NotionApi.createPage(NotionIDs.MEDIA, messageObject.text)
+        
+    elif TelegramBot.lastCommand == "/tarea":
+        TodoistApi.manageTodoistTask(messageObject.text)
+
+
 @TelegramBot.instance.message_handler(content_types=['video'])
 def message_handler(messageObject):
 
@@ -78,15 +148,6 @@ def message_handler(messageObject):
         with open(filePath, 'wb') as photoFile:
             photoFile.write(downloadedFile)
 
-    except TypeError as error:
-        Utils.sendMessage(f"[ERROR : {error}]")
-
-
-@TelegramBot.instance.message_handler(content_types=['text'])
-def message_handler(messageObject):
-
-    try:
-        TelegramManager.manageMessage(messageObject)
     except TypeError as error:
         Utils.sendMessage(f"[ERROR : {error}]")
 

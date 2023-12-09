@@ -8,8 +8,7 @@ from notion_database.properties import Properties
 
 from utils import Utils
 from checkGrammarText import CheckGrammar
-from todoistAPI import TodoistApi
-from definitions import NotionIDs, NotionPages, NotionProperties, JsonHolder, Todoist
+from definitions import NotionIDs, NotionJsonHolder, NotionProperties
 
 
 # FOR PAGES
@@ -39,8 +38,8 @@ class NotionProperty():
     def setMultiSelect(self, tags):
         self.property.set_multi_select(NotionProperties.TAGS, tags)
 
-    def setNumber(self, number):
-        self.property.set_number(NotionProperties.PAGE, number)
+    def setNumber(self, key, number):
+        self.property.set_number(key, number)
     
     def setCheckbox(self, checked):
         self.property.set_checkbox("checkbox", checked)
@@ -70,7 +69,7 @@ class NotionUtils:
 
 
     @classmethod
-    def getTagsPropertyValues(cls, ID):
+    def getTagValues(cls, ID):
         values = []
         properties = cls.getProperties(ID)
 
@@ -126,143 +125,77 @@ class NotionUtils:
 ###################################
 class NotionApi:
 
-    @classmethod
-    def getNotionJSONHolder(cls):
-        try:
-            with open("./data/notionDatabaseHolder.json", 'r', encoding='utf8') as fileData:
-                data = json.load(fileData)
-                fileData.close()
-                return data
-        except RuntimeError as error:
-            Utils.sendMessage(f"[ERROR: {error}]")       
-
 
     @classmethod
-    def createPage(cls, ID, key, message):
+    def createPage(cls, ID, message):
 
-        Utils.writeJSON(JsonHolder.DEFAULT_JSON)
-        Utils.writeJSON(JsonHolder.DEFAULT_JSON_BILL)
+        message = message.lower()
+        fileData = Utils.getDictData(message, NotionProperties.PROPERTIES)
 
-        if NotionPages.GASTOS in key:
+        if ID is NotionIDs.GASTOS:
 
-            fileData = NotionApi.formatGastos(message)
-            NotionApi.createBillProperties(fileData)
+            message = CheckGrammar.cleanStartAndEnd(message).split(' ')
 
-        else:
-            fileData = NotionApi.getNotionJSONHolder()
-            message = message.lower()
+            fileData[NotionProperties.AMOUNT]= message[0]
+            fileData[NotionProperties.TITLE] = message[1]
+            fileData[NotionProperties.PRICE] = message[2]
 
-            databasePropertyNames = NotionUtils.getPropertyNames(ID)
-            databasePropertyNames.append("Titulo")
-
-            propertiesToCheck = []
-            for propertyName in databasePropertyNames:
-                if propertyName in NotionProperties.PROPERTIES and propertyName.lower() in message:
-                    propertiesToCheck.append(propertyName)
-                elif propertyName != "Created time":
-                    Utils.sendMessage(f"[ERROR: Your message does not have the database property {propertyName}]")
-
-            for propertyName in propertiesToCheck:
-                startIndex = message.find(propertyName.lower())
-
-                endIndex = startIndex + len(propertyName)
-                startIndexNextProperty = -1
-
-                nearestIndex = 10000
-                for nextProperty in propertiesToCheck:
-                    index = message[:].find(nextProperty.lower())
-                    if propertyName != nextProperty and endIndex < index < nearestIndex:
-                        startIndexNextProperty = index
-                        nearestIndex = index
-
-                value = message[endIndex:startIndexNextProperty]
-                if startIndexNextProperty == -1:
-                    value = message[endIndex:]
-
-                value = CheckGrammar.cleanStartAndEnd(value).capitalize()
-
-            # dictData = Utils.getDictData(message, propertiesToCheck)
-
-                if propertyName == NotionProperties.NOTE or propertyName == NotionProperties.PAGE:
-                    value = int(re.search(r'\d+', value)[0])
-
-                elif propertyName == NotionProperties.TAGS:
-                    tagsTask = []
-                    tags = NotionUtils.getTagsPropertyValues(ID)
-                    for tag in tags:
-                        if tag.lower() in value.lower():
-                            tagsTask.append(tag)
-                    value = tagsTask
-
-                elif propertyName == NotionProperties.CATEGORY:
-                    tags = NotionUtils.getTagsPropertyValues(ID)
-                    for tag in tags:
-                        if tag in value:
-                            value = tag
-
-                fileData[propertyName] = value
-
-            Utils.writeJSON(fileData)
-            properties = NotionApi.createProperties(key, fileData)
+            properties = NotionApi.createProperties(fileData)
             NotionUtils.createPage(ID, properties)
+            return
+
+        for propertyName in NotionProperties.PROPERTIES:
+
+            if fileData[propertyName] is None or propertyName not in NotionUtils.getPropertyNames(ID):
+                continue
+
+            # Multiple options
+            if NotionProperties.TAGS[0] in fileData and propertyName == fileData[NotionProperties.TAGS]:
+                tagsList = [tag for tag in NotionUtils.getTagValues(ID) if tag.lower() in fileData[propertyName]]
+                fileData[propertyName] = tagsList
+
+            # Only one option
+            if NotionProperties.CATEGORY[0] in fileData in propertyName == fileData[NotionProperties.CATEGORY]:
+                tag = NotionUtils.getTagValues(ID)
+                fileData[propertyName] = tag in fileData[propertyName]
+
+        properties = NotionApi.createProperties(fileData)
+        NotionUtils.createPage(ID, properties)
 
 
     @classmethod
-    def createBillProperties(cls, fileData):
-        title = fileData[NotionProperties.TITLE]
-        amount = fileData[NotionProperties.AMOUNT]
-        price = fileData[NotionProperties.PRICE].replace(',', '.')
-
-        try:
-            properties = Properties()
-            properties.set_number(NotionProperties.AMOUNT, int(amount))
-            properties.set_title(NotionProperties.TITLE, title)
-            properties.set_number(NotionProperties.PRICE, float(price))
-            NotionUtils.P.create_page(database_id=NotionIDs.GASTOS, properties=properties)
-        except RuntimeError as error:
-            Utils.sendMessage(f"[ERROR: bad formatted json {error}]")
-
-
-    @classmethod
-    def createProperties(cls, key, fileData):
+    def createProperties(cls, fileData):
 
         newProperty = NotionProperty()
+        
         title = Utils.fixFullText(fileData[NotionProperties.TITLE])
-        text = Utils.fixFullText(fileData[NotionProperties.TEXT])
-
         newProperty.setTitle(title)
-        newProperty.setText(text)
-
-        if key == "Apuntes":
-            newProperty.setText(fileData[NotionProperties.AUTHOR].capitalize())
-            newProperty.setNumber(fileData[NotionProperties.PAGE])
-        elif key == "Media":
-            newProperty.setText(fileData[NotionProperties.AUTHOR].capitalize())
-            newProperty.setNumber(fileData[NotionProperties.NOTE])
+    
+        if fileData[NotionProperties.TEXT] is not None:
+            text = Utils.fixFullText(fileData[NotionProperties.TEXT])
+            newProperty.setText(text)
+    
+        if fileData[NotionProperties.CATEGORY] is not None:
             newProperty.setSelect(fileData[NotionProperties.CATEGORY])
+        
+        if fileData[NotionProperties.TAGS] is not None:
+            newProperty.setMultiSelect(fileData[NotionProperties.CATEGORY])
+        
+        if fileData[NotionProperties.AUTHOR] is not None:
+            newProperty.setText(fileData[NotionProperties.AUTHOR])
 
-        return newProperty
+        if fileData[NotionProperties.AMOUNT] is not None:
+            newProperty.setNumber(NotionProperties.AMOUNT, int(fileData[NotionProperties.AMOUNT]))
+        
+        if fileData[NotionProperties.PRICE] is not None:
+            price = fileData[NotionProperties.PRICE].replace(',', '.')
+            newProperty.setNumber(NotionProperties.PRICE, float(price))
 
+        if fileData[NotionProperties.RATING] is not None:
+            rating = fileData[NotionProperties.RATING].replace(',', '.')
+            newProperty.setNumber(NotionProperties.RATING, float(rating))
 
-    @classmethod
-    def formatGastos(cls, message):
-        i = 0
-        text = ''
-        fileData = ''
-        try:
-            with open("./data/notionDatabaseBillHolder.json", 'r', encoding='utf8') as data:
-                fileData = json.load(data)
-                data.close()
-        except RuntimeError as error:
-            Utils.sendMessage(f"[ERROR: {error}]")
-
-        message = CheckGrammar.cleanStartAndEnd(message).split(' ')
-        fileData[NotionProperties.AMOUNT]= message[0]
-        fileData[NotionProperties.TITLE] = message[1]
-        fileData[NotionProperties.PRICE] = message[2]
-        Utils.writeJSON(fileData)
-
-        return fileData
+        return newProperty.property
 
 
     # @classmethod
@@ -305,50 +238,50 @@ class NotionApi:
     #             NotionUtils.updateDatabase(NotionIDs.TASK_LIST, taskTitle, propertyUpdated)
 
 
-    @classmethod
-    def getPagesDatabase(cls, databaseID):
+    # @classmethod
+    # def getPagesDatabase(cls, databaseID):
 
-        pages = {}
-        pagesRetrieved = NotionUtils.findPage(databaseID, 100)
+    #     pages = {}
+    #     pagesRetrieved = NotionUtils.findPage(databaseID, 100)
 
-        if not pagesRetrieved:
-            return None
+    #     if not pagesRetrieved:
+    #         return None
 
-        for page in pagesRetrieved:
-            newPage = {'ID': {page['id']}}
-            properties = page['properties']
-            proyect = page['properties'][Todoist.PROJECT]['select']
-            proyectName = proyect['name']
+    #     for page in pagesRetrieved:
+    #         newPage = {'ID': {page['id']}}
+    #         properties = page['properties']
+    #         proyect = page['properties'][Todoist.PROJECT]['select']
+    #         proyectName = proyect['name']
 
-            if proyect is None:
-                continue
+    #         if proyect is None:
+    #             continue
 
-            if proyectName not in pages.keys():
-                pages.update({proyectName: []})
+    #         if proyectName not in pages.keys():
+    #             pages.update({proyectName: []})
 
-            for propertyName in properties:
+    #         for propertyName in properties:
 
-                pageType = pageProp['type']
-                pageProp = properties[propertyName]
+    #             pageType = pageProp['type']
+    #             pageProp = properties[propertyName]
 
-                if pageType == 'date' and pageProp['date'] is not None:
-                    newPage.update({propertyName: pageProp['date']['start']})
+    #             if pageType == 'date' and pageProp['date'] is not None:
+    #                 newPage.update({propertyName: pageProp['date']['start']})
 
-                elif pageType == 'rich_text' and pageProp['rich_text'] != []:
-                    newPage.update({propertyName: pageProp['rich_text'][0]['text']['content']})
+    #             elif pageType == 'rich_text' and pageProp['rich_text'] != []:
+    #                 newPage.update({propertyName: pageProp['rich_text'][0]['text']['content']})
 
-                elif pageType == 'title' and pageProp['title'] != []:
-                    newPage.update({propertyName: pageProp['title'][0]['text']['content']})
+    #             elif pageType == 'title' and pageProp['title'] != []:
+    #                 newPage.update({propertyName: pageProp['title'][0]['text']['content']})
 
-                elif pageType == 'url':
-                    newPage.update({propertyName: pageProp['url']})
+    #             elif pageType == 'url':
+    #                 newPage.update({propertyName: pageProp['url']})
 
-                elif pageType == 'checkbox':
-                    newPage.update({propertyName: pageProp['checkbox']})
+    #             elif pageType == 'checkbox':
+    #                 newPage.update({propertyName: pageProp['checkbox']})
 
-            pages[proyectName].append(newPage)
+    #         pages[proyectName].append(newPage)
 
-        return pages
+    #     return pages
 
 
 # queueNotionTaskManager()

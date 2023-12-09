@@ -1,7 +1,9 @@
 import os
 import re
 
+from telebot.types import MessageEntity
 from mdutils import MdUtils
+from checkGrammarText import CheckGrammar
 from datetime import date
 
 # https://github.com/didix21/mdutils
@@ -31,12 +33,12 @@ class ObsidianApi:
 
 
     @classmethod
-    def createNote(cls, folder, title, text, tags=None, links=None):
+    def createNote(cls, messageObject):
+
+        folder, title, text, tags, links = ObsidianApi.extractDataFromMessage(messageObject)
         
         folderPath = os.path.normpath(Obsidian.VAULT_DIRECTORY + f"\\{folder}")
-
         Utils.checkDestinationFolderExist(folderPath)
-
         filePath = os.path.normpath(folderPath + f'\\{title}.md')
 
         try:
@@ -47,9 +49,35 @@ class ObsidianApi:
 
 
     @classmethod
-    def manageMessage(cls, message):
+    def extractDataFromMessage(cls, messageObject):
+
+        links = {}
+        if messageObject.entities:
+            entities = MessageEntity.to_list_of_dicts(messageObject.entities)
+
+        for entity in entities:
+            startIndex = entity["offset"]
+            endIndex = startIndex + entity["length"]
+            hiperlink = text[startIndex: endIndex]
+            link = entity["url"]
+            links.update({hiperlink: link})
         
-        return Utils.getDictData(message, Obsidian.KEYS) if message else None
+        text = CheckGrammar.cleanStartAndEnd(messageObject.text)
+        obsidianDict = Utils.getDictData(messageObject.text, Obsidian.KEYS)
+
+        for key in Obsidian.KEYS:
+            try:
+                value = obsidianDict[key]
+                if value is None:
+                    Utils.sendMessage(f"[ERROR: {key} value is empty]")
+            except IndexError as error:
+                Utils.sendMessage(f"[ERROR: incorrect value for {key}: ({error})]")    
+        
+        return  obsidianDict[Obsidian.FOLDER],\
+                obsidianDict[Obsidian.TITLE],\
+                obsidianDict[Obsidian.TEXT],\
+                obsidianDict[Obsidian.TAGS].split(),\
+                links
       
 
     @classmethod
@@ -88,8 +116,6 @@ class MarkDownFileUtils:
     @classmethod
     def createNote(cls, text, tags, links):
 
-        text = MarkDownFileUtils.formatText(text, tags)
-
         MarkDownFileUtils.writeText(text, tags, links)
         try:
             MarkDownFileUtils.mdFile.create_md_file()
@@ -98,32 +124,22 @@ class MarkDownFileUtils:
 
 
     @classmethod
-    def formatText(cls, text, tags):
+    def writeText(cls, text, tags, links):
+
+        headerLevel = 1
         newFile = MarkDownFileUtils.mdFile
+        noteTags = ObsidianApi.vault.tags_index
+        
         if newFile is None:
             return
 
-        noteTags = ObsidianApi.vault.tags_index
-
         for nameFile in noteTags:
-
             # Format text word with a link to the note
             if nameFile in text:
                 re.sub(nameFile, f"[[{nameFile}]]", text)
                 MarkDownFileUtils.references.append(f'[[{nameFile}]]')
 
         sorted(MarkDownFileUtils.references)
-
-        return text
-
-    @classmethod
-    def writeText(cls, text, tags, links):
-
-        headerLevel = 1
-        newFile = MarkDownFileUtils.mdFile
-        
-        if newFile is None:
-            return
         
         try:
             newFile.new_header(level=headerLevel, title='Fecha:', style='setext')
