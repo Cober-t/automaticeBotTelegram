@@ -42,8 +42,7 @@ class TodoistHelper:
             if content is None:
                 content = ''
             task = TodoistHelper.api.add_task(content=title, project_id=projectID, description=content, due_string=due)
-            print(task)
-        except Exception as error:
+        except (RuntimeError, ValueError, IndexError) as error:
             Utils.sendMessage(f"[ERROR: {error} - Content: {title} - ProjectID: {projectID}]")
 
 
@@ -89,27 +88,30 @@ class TodoistApi:
 
 
     @classmethod
-    def manageTodoistTask(cls, message, links = None):
+    def manageTodoistTask(cls, taskInfo, links):
 
         # URLs
-        text = ''
+        title = taskInfo[Todoist.TITLE]
+        description = taskInfo[Todoist.DESCRIPTION]
+
         if links is not None:
+
             for hiperlink in links:
+                
                 url = links[hiperlink]
-                text = message.replace(hiperlink, f"[{hiperlink}]({url})")
+                title = title.replace(hiperlink, f"[{hiperlink}]({url})")
 
-        text = CheckGrammar.cleanStartAndEnd(text)
-        taskInfo = Utils.getDictData(text, Todoist.KEYS)
+                if description is not None:
+                    description = description.replace(hiperlink, f"[{hiperlink}]({url})")
 
-        # CONTENT
-        text = taskInfo[Todoist.TITLE]
+        # Extract dictionary data
+        title = CheckGrammar.cleanStartAndEnd(title)
 
-        # PROJECT
-        if taskInfo[Todoist.PROJECT] is None:
-            taskInfo[Todoist.PROJECT] = Todoist.INBOX_ID
-        else:
-            taskInfo[Todoist.PROJECT] = TodoistApi.getProjectID(taskInfo[Todoist.PROJECT])
+        if description is not None:
+            description = CheckGrammar.cleanStartAndEnd(description)
 
+        date = taskInfo[Todoist.DATE]
+        project = TodoistApi.getProjectID(taskInfo[Todoist.PROJECT])
 
-        TodoistHelper.addTask(text, taskInfo[Todoist.PROJECT], taskInfo[Todoist.DESCRIPTION], taskInfo[Todoist.DATE])
+        TodoistHelper.addTask(title, project, description, date)
 

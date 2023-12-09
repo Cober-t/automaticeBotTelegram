@@ -2,14 +2,15 @@
 import subprocess
 import speech_recognition
 
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from utils import Utils
 from telegramBot import TelegramBot
-from definitions import Obsidian, NotionIDs
+from definitions import Obsidian, Todoist, DATAHOLDER, Help, COMMANDS
+
 from notionAPI import NotionApi
 from todoistAPI import TodoistApi
 from obsidianAPI import ObsidianApi
-from definitions import Help
 
 # # Check daily tasks
 # dtToday = datetime.today()
@@ -28,18 +29,64 @@ from definitions import Help
 TelegramBot.initBot()
 
 
+@TelegramBot.instance.callback_query_handler(func=lambda call: True)
+def menssageConstructor(call):
+
+    TelegramBot.entryData = call.data
+
+    if call.data == "Update":
+
+        key = TelegramBot.lastCommand
+        dictData = DATAHOLDER[key]
+
+        # Notion pages
+        if key in (COMMANDS.DIARIO, COMMANDS.GASTOS, COMMANDS.MEDIA):
+            NotionApi.createPage(COMMANDS.NOTION_ID_DICT[key], dictData)
+        
+        # Todoist task
+        elif key == COMMANDS.TAREA:
+
+            # Handle links for title and description
+            links = Utils.extractLinksFroMessage(dictData[Todoist.TITLE])
+            if dictData[Todoist.DESCRIPTION] is not None:
+                links.update(Utils.extractLinksFroMessage(dictData[Todoist.DESCRIPTION]))
+                dictData[Todoist.DESCRIPTION] = dictData[Todoist.DESCRIPTION].text
+
+            dictData[Todoist.TITLE] = dictData[Todoist.TITLE].text
+            TodoistApi.manageTodoistTask(dictData, links)
+
+        # Obsidian note
+        elif key == COMMANDS.NOTA:
+
+            ObsidianApi.initVault()
+            ObsidianApi.createNote(dictData)
+
+        Utils.sendMessage(f"[INFO: Entrada creada con exito!]")
+        
+
+###################################
+#||||||| HANDLER COMMANDS ||||||||#
+###################################
+@TelegramBot.instance.message_handler(commands=['diario', 'gastos', 'media', 'tarea', 'nota'])
+def commandDiary(messageObject):    
+
+    TelegramBot.lastCommand = messageObject.text
+
+    markup = InlineKeyboardMarkup()
+    markup.row_width = 2
+
+    for key in DATAHOLDER[TelegramBot.lastCommand]:
+        DATAHOLDER[TelegramBot.lastCommand][key] = None
+        markup.add(InlineKeyboardButton(key, callback_data=key))
+    markup.add(InlineKeyboardButton("Crear Entrada", callback_data="Update"))
+
+    TelegramBot.instance.send_message(messageObject.chat.id, "Rellena estos campos para crear la entrada", reply_markup=markup)
+
+
 @TelegramBot.instance.message_handler(commands=['guia'])
 def commandHelp(messageObject):
     '''Send help and info about the commands and his format'''
     Utils.sendMessage(Help.MESSAGE)
-
-
-# @TelegramBot.instance.message_handler(commands=['tarea'])
-# def commandNewTask(messageObject):
-#     '''Add a new task to Todoist'''
-#     Utils.sendMessage("TAREAS: -- [Texto, Fecha, Proyecto, Repetir]")
-#     links = Utils.extractLinksFroMessage(messageObject)
-#     TodoistApi.manageTodoistTask(messageObject.text, links)
 
 
 @TelegramBot.instance.message_handler(commands=['update'])
@@ -48,32 +95,26 @@ def commandUpdate(messageObject):
     print(f'Update')
 
 
-# Handler messages
+###################################
+#|||||||| HANDLER MESSAGES |||||||#
+###################################
 @TelegramBot.instance.message_handler(content_types=['text'])
 def message_handler(messageObject):
 
-    if messageObject.text[0] == "/":
-        TelegramBot.lastCommand = messageObject.text
-        return
+    page = TelegramBot.lastCommand
+    entry = TelegramBot.entryData
     
-    if TelegramBot.lastCommand == "/gastos":
-        NotionApi.createPage(NotionIDs.GASTOS, messageObject.text)
-        
-    elif TelegramBot.lastCommand == "/diario":
-        NotionApi.createPage(NotionIDs.DIARIO, messageObject.text)
-        
-    elif TelegramBot.lastCommand == "/media":
-        NotionApi.createPage(NotionIDs.MEDIA, messageObject.text)
-        
-    elif TelegramBot.lastCommand == "/tarea":
-        links = Utils.extractLinksFroMessage(messageObject)
-        TodoistApi.manageTodoistTask(messageObject.text, links)
 
-    elif TelegramBot.lastCommand == "/nota":
-        ObsidianApi.initVault()
-        ObsidianApi.createNote(messageObject)
+    if page in COMMANDS.KEYS:
+        DATAHOLDER[page][entry] = messageObject.text
+
+        if page == COMMANDS.TAREA and (entry == Todoist.TITLE or entry == Todoist.DESCRIPTION):
+            DATAHOLDER[page][entry] = messageObject
 
 
+###################################
+#||||||| HANDLER RESOURCES |||||||#
+###################################
 @TelegramBot.instance.message_handler(content_types=['video'])
 def message_handler(messageObject):
 
@@ -148,7 +189,7 @@ def message_handler(messageObject):
 #        recognizer = speech_recognition.Recognizer()
 #        audio = recognizer.record(fileData)
 #        text = recognizer.recognize_google(audio, language='es_ES')
-#        TelegramManager.manageMessage(text)
+#        Utils.sendMessage(text)
 
 #    except TypeError as error:
 #        Utils.sendMessage(f"[ERORR : {error}]")

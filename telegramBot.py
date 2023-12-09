@@ -7,6 +7,8 @@ class TelegramBot:
 
     instance = None
     lastCommand = None
+    entryData = None
+
 
     @classmethod
     def initBot(cls):

@@ -38,11 +38,11 @@ class Utils:
         try:
             subPath = os.path.dirname(path)
             if not os.path.exists(subPath):
-                cls.checkDestinationFolderExist(subPath)
+                Utils.checkDestinationFolderExist(subPath)
             if not os.path.exists(path):
                 os.mkdir(path)
         except RuntimeError as error:
-            cls.sendMessage(f"[ERROR: {error}]")
+            Utils.sendMessage(f"[ERROR: {error}]")
 
 
     @classmethod
@@ -92,8 +92,8 @@ class Utils:
     @classmethod
     def extractLinksFroMessage(cls, messageObject):
 
-        if messageObject.entities == None:
-            return
+        if messageObject.entities is None:
+            return {}
         
         links = {}
         text = messageObject.text

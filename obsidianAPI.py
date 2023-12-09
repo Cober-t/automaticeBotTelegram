@@ -1,7 +1,5 @@
-import os
-import re
+import os, re
 
-from telebot.types import MessageEntity
 from mdutils import MdUtils
 from checkGrammarText import CheckGrammar
 
@@ -42,7 +40,7 @@ class ObsidianApi:
 
         try:
             newFile = MarkDownFileUtils(filePath)
-            newFile.createNote(text, tags, links)
+            newFile.createNote(title, text, tags, links)
         except RuntimeError as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
@@ -63,11 +61,16 @@ class ObsidianApi:
             except IndexError as error:
                 Utils.sendMessage(f"[ERROR: incorrect value for {key}: ({error})]")    
         
+        tags = []
+        for tag in obsidianDict[Obsidian.TAGS].split(','):
+            tag = CheckGrammar.cleanStartAndEnd(tag)
+            if tag not in tags:
+                tags.append(tag)
+
         return  obsidianDict[Obsidian.FOLDER],\
                 obsidianDict[Obsidian.TITLE],\
                 obsidianDict[Obsidian.TEXT],\
-                obsidianDict[Obsidian.TAGS].split(),\
-                links
+                tags, links
       
 
     @classmethod
@@ -102,19 +105,19 @@ class MarkDownFileUtils:
 
 
     @classmethod
-    def createNote(cls, text, tags, links):
+    def createNote(cls, title, text, tags, links):
 
-        MarkDownFileUtils.writeText(text, tags, links)
         try:
+            MarkDownFileUtils.writeText(title, text, tags, links)
             MarkDownFileUtils.mdFile.create_md_file()
-        except RuntimeError as error:
+        except (RuntimeError, ValueError, IndexError) as error:
             Utils.sendMessage(f"[ERROR: create new fileNote error {error}")
 
 
     @classmethod
-    def writeText(cls, text, tags, links):
+    def writeText(cls, title, text, tags, links):
 
-        headerLevel = 1
+        headerLevel = 2
         newFile = MarkDownFileUtils.mdFile
         noteTags = ObsidianApi.vault.tags_index
         
@@ -132,6 +135,7 @@ class MarkDownFileUtils:
         sorted(MarkDownFileUtils.references)
         
         try:
+            newFile.new_header(level= 1, title=title, style='setext')
             newFile.new_header(level=headerLevel, title='Fecha:', style='setext')
             newFile.new_line(str(Utils.todayDate()))
             newFile.new_line()

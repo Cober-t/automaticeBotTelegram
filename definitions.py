@@ -65,15 +65,19 @@ class NotionProperties:
 
 class NotionPages:
     DIARIO = "Diario"
-    APUNTES = "Apuntes"
     GASTOS = "Gastos"
     MEDIA = "Media"
-    KEYS = {
-        DIARIO: NotionIDs.DIARIO,
-        APUNTES: NotionIDs.APUNTES,
-        GASTOS: NotionIDs.GASTOS,
-        MEDIA: NotionIDs.MEDIA
-        }
+    KEYS = { DIARIO: NotionIDs.DIARIO, GASTOS: NotionIDs.GASTOS, MEDIA: NotionIDs.MEDIA }
+    
+
+class COMMANDS:
+    DIARIO = "/diario"
+    GASTOS = "/gastos"
+    MEDIA = "/media"
+    TAREA = "/tarea"
+    NOTA = "/nota"
+    KEYS = [DIARIO, GASTOS, MEDIA, TAREA, NOTA]
+    NOTION_ID_DICT = {DIARIO: NotionIDs.DIARIO, GASTOS: NotionIDs.GASTOS, MEDIA: NotionIDs.MEDIA}
 
 
 class Help:
@@ -81,25 +85,48 @@ class Help:
     GUIDE = ("Guía", "Guia")
 
     ALL_KEYS = ("Guía", "Guia", "Referencia", "Referencias", "Tarea", "Tareas", "Nota", "Notas",
-                NotionPages.DIARIO, NotionPages.APUNTES, NotionPages.GASTOS, NotionPages.MEDIA)
+                NotionPages.DIARIO, NotionPages.GASTOS, NotionPages.MEDIA)
     
     MESSAGE = "Formato de los comandos: \n\
     \t\tGASTOS: -- ['cantidad' Titulo 'precio']\n\n\
     \t\tMEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]\n\n\
     \t\tDIARIO: -- [Titulo, Texto]\n\n\
     \t\tTAREAS: -- [Proyecto, Titulo, Descripcion, Fecha]\n\n\
-    \t\tREFERENCIAS: -- [retrieve tags from Obsidian]"
+    \t\tNOTA: -- [Carpeta, Titulo, Texto, Fecha, Etiquetas]"
 
 
-class NotionJsonHolder:
+DATAHOLDER = {
     
-    DEFAULT_JSON = {
+    COMMANDS.DIARIO: {
+        NotionProperties.TITLE: None,
+        NotionProperties.TEXT: None
+    },
+
+    COMMANDS.GASTOS: {
+        NotionProperties.AMOUNT: None,
+        NotionProperties.TITLE: None,
+        NotionProperties.PRICE: None,
+    },
+
+    COMMANDS.MEDIA: {
         NotionProperties.TITLE: None,
         NotionProperties.TEXT: None,
-        NotionProperties.AMOUNT: None,
-        NotionProperties.PRICE : None,
-        NotionProperties.TAGS: None,
-        NotionProperties.CATEGORY: None,
         NotionProperties.AUTHOR: None,
-        NotionProperties.RATING: None
+        NotionProperties.RATING: None,
+        NotionProperties.CATEGORY: None
+    },
+
+    COMMANDS.TAREA: {
+        Todoist.PROJECT: None,
+        Todoist.TITLE: None,
+        Todoist.DESCRIPTION: None,
+        Todoist.DATE: None
+    },
+
+    COMMANDS.NOTA: {
+        Obsidian.FOLDER: None,
+        Obsidian.TITLE: None,
+        Obsidian.TITLE: None,
+        Obsidian.TAGS: None
     }
+}
