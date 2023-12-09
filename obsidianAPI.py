@@ -84,8 +84,8 @@ class ObsidianApi:
             for tag in tagsInFileNames[fileName]:
                 if tag not in result:
                     result.append(tag)
-    
-        return sorted(result)
+
+        return sorted(list(set(result)))
 
 
 class MarkDownFileUtils:
@@ -124,14 +124,16 @@ class MarkDownFileUtils:
         for nameFile in noteTags:
             # Format text word with a link to the note
             if nameFile in text:
-                re.sub(nameFile, f"[[{nameFile}]]", text)
-                MarkDownFileUtils.references.append(f'[[{nameFile}]]')
+                fileReferenced = f"[[{nameFile}]]"
+                re.sub(nameFile, fileReferenced, text)
+                if fileReferenced not in MarkDownFileUtils.references:
+                    MarkDownFileUtils.references.append(fileReferenced)
 
         sorted(MarkDownFileUtils.references)
         
         try:
             newFile.new_header(level=headerLevel, title='Fecha:', style='setext')
-            newFile.new_line(Utils.todayDate())
+            newFile.new_line(str(Utils.todayDate()))
             newFile.new_line()
 
             if tags:
