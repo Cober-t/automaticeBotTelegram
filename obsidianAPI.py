@@ -4,7 +4,6 @@ import re
 from telebot.types import MessageEntity
 from mdutils import MdUtils
 from checkGrammarText import CheckGrammar
-from datetime import date
 
 # https://github.com/didix21/mdutils
 from utils import Utils
@@ -51,19 +50,10 @@ class ObsidianApi:
     @classmethod
     def extractDataFromMessage(cls, messageObject):
 
-        links = {}
-        if messageObject.entities:
-            entities = MessageEntity.to_list_of_dicts(messageObject.entities)
-
-        for entity in entities:
-            startIndex = entity["offset"]
-            endIndex = startIndex + entity["length"]
-            hiperlink = text[startIndex: endIndex]
-            link = entity["url"]
-            links.update({hiperlink: link})
+        links = Utils.extractLinksFroMessage(messageObject)
         
         text = CheckGrammar.cleanStartAndEnd(messageObject.text)
-        obsidianDict = Utils.getDictData(messageObject.text, Obsidian.KEYS)
+        obsidianDict = Utils.getDictData(text, Obsidian.KEYS)
 
         for key in Obsidian.KEYS:
             try:
@@ -102,7 +92,6 @@ class MarkDownFileUtils:
     '''Utils for manage files from Obsidian'''
 
     mdFile = None
-    todayDate = None
     allTags = []
     references = []
 
@@ -110,7 +99,6 @@ class MarkDownFileUtils:
     def __init__(cls, path):
         
         MarkDownFileUtils.mdFile = MdUtils(file_name=path)
-        MarkDownFileUtils.todayDate = str(date.today())
 
 
     @classmethod
@@ -143,7 +131,7 @@ class MarkDownFileUtils:
         
         try:
             newFile.new_header(level=headerLevel, title='Fecha:', style='setext')
-            newFile.new_line(MarkDownFileUtils.todayDate)
+            newFile.new_line(Utils.todayDate())
             newFile.new_line()
 
             if tags:

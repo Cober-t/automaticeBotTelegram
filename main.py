@@ -33,40 +33,13 @@ def commandHelp(messageObject):
     '''Send help and info about the commands and his format'''
     Utils.sendMessage(Help.MESSAGE)
 
-# @TelegramBot.instance.message_handler(commands=['gastos'])
-# def commandExpense(messageObject):
-#     '''Entry for page "Gastos"'''
-#     Utils.sendMessage("GASTOS: -- ['cantidad' Titulo 'precio']")
-#     NotionApi.createPage(NotionIDs.GASTOS, messageObject.text)
-
-
-# @TelegramBot.instance.message_handler(commands=['diario'])
-# def commandDiario(messageObject):
-#     '''Entry for page "Diario"'''
-#     Utils.sendMessage("DIARIO: -- [Titulo, Texto]")
-#     NotionApi.createPage(NotionIDs.DIARIO, messageObject.text)
-
-
-# @TelegramBot.instance.message_handler(commands=['multimedia'])
-# def commandMedia(messageObject):
-#     '''Entry for page "Multimedia"'''
-#     Utils.sendMessage("MEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]")
-#     NotionApi.createPage(NotionIDs.MEDIA, messageObject.text)
-
 
 # @TelegramBot.instance.message_handler(commands=['tarea'])
 # def commandNewTask(messageObject):
 #     '''Add a new task to Todoist'''
 #     Utils.sendMessage("TAREAS: -- [Texto, Fecha, Proyecto, Repetir]")
-#     TodoistApi.manageTodoistTask(messageObject.text)
-
-
-@TelegramBot.instance.message_handler(commands=['nota'])
-def commandNoteObsidian(messageObject):
-    '''Create a new note in Obsidian'''
-    Utils.sendMessage("REFERENCIAS: -- [retrieve tags from Obsidian]")
-    ObsidianApi.initVault()
-    ObsidianApi.createNote(messageObject)
+#     links = Utils.extractLinksFroMessage(messageObject)
+#     TodoistApi.manageTodoistTask(messageObject.text, links)
 
 
 @TelegramBot.instance.message_handler(commands=['update'])
@@ -93,7 +66,12 @@ def message_handler(messageObject):
         NotionApi.createPage(NotionIDs.MEDIA, messageObject.text)
         
     elif TelegramBot.lastCommand == "/tarea":
-        TodoistApi.manageTodoistTask(messageObject.text)
+        links = Utils.extractLinksFroMessage(messageObject)
+        TodoistApi.manageTodoistTask(messageObject.text, links)
+
+    elif TelegramBot.lastCommand == "/nota":
+        ObsidianApi.initVault()
+        ObsidianApi.createNote(messageObject)
 
 
 @TelegramBot.instance.message_handler(content_types=['video'])

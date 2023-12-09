@@ -1,8 +1,9 @@
 '''Main Utils class'''
 import os
-import json
+from datetime import date
 
-from definitions import Telegram, NotionProperties
+from definitions import Telegram
+from telebot.types import MessageEntity
 from checkGrammarText import CheckGrammar
 from telegramBot import TelegramBot
 
@@ -86,3 +87,28 @@ class Utils:
         downloadedFile = TelegramBot.instance.download_file(fileInfo.file_path)
 
         return downloadedFile, fileName
+
+
+    @classmethod
+    def extractLinksFroMessage(cls, messageObject):
+
+        if messageObject.entities == None:
+            return
+        
+        links = {}
+        text = messageObject.text
+        entities = MessageEntity.to_list_of_dicts(messageObject.entities)
+
+        for entity in entities:
+            startIndex = entity["offset"]
+            endIndex = startIndex + entity["length"]
+            hiperlink = text[startIndex: endIndex]
+            link = entity["url"]
+            links.update({hiperlink: link})
+        
+        return links
+
+
+    @classmethod
+    def todayDate(cls):
+        return date.today()

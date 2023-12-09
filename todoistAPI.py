@@ -1,4 +1,6 @@
 '''Main Todoist Class'''
+import json
+
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 
@@ -35,17 +37,14 @@ class TodoistHelper:
         return TodoistHelper.api.get_tasks()
 
     @classmethod
-    def addTask(cls, name, projectID=Todoist.INBOX_ID, repeat=None, date=None, url=''):
+    def addTask(cls, title, projectID, content, due=None):
         try:
-            # dueDate = {
-            #     "date": "2023-06-30",
-            #     "timezone": None,
-            #     "is_recurring": True,
-            #     "string": "tomorrow at 10:00",
-            # }
-            TodoistHelper.api.add_task(content=name, project_id=projectID, due_string=repeat)
+            if content is None:
+                content = ''
+            task = TodoistHelper.api.add_task(content=title, project_id=projectID, description=content, due_string=due)
+            print(task)
         except Exception as error:
-            Utils.sendMessage(f"[ERROR: {error} - ProjectName: {name} - ProjectID: {projectID}]")
+            Utils.sendMessage(f"[ERROR: {error} - Content: {title} - ProjectID: {projectID}]")
 
 
 ###################################
@@ -71,7 +70,7 @@ class TodoistApi:
 
 
     @classmethod
-    def getProjectTasks(cls, projectID="2210170146"):
+    def getProjectTasks(cls, projectID=Todoist.INBOX_ID):
         return [task for task in TodoistHelper.getTasks() if task.project_id == projectID]
 
 
@@ -90,44 +89,27 @@ class TodoistApi:
 
 
     @classmethod
-    def manageTodoistTask(cls, message):
+    def manageTodoistTask(cls, message, links = None):
 
-        description = Todoist.DESCRIPTION
-        project = Todoist.PROJECT
-        inboxID = Todoist.INBOX_ID
-        repeat = Todoist.REPEAT
-        date = Todoist.DATE
+        # URLs
+        text = ''
+        if links is not None:
+            for hiperlink in links:
+                url = links[hiperlink]
+                text = message.replace(hiperlink, f"[{hiperlink}]({url})")
 
-        message = message.lower()
-        taskInfo = {description: '', project: inboxID, repeat:None}
-        propertiesToCheck = [description, project, repeat, date]
+        text = CheckGrammar.cleanStartAndEnd(text)
+        taskInfo = Utils.getDictData(text, Todoist.KEYS)
 
-        for currentProperty in propertiesToCheck:
+        # CONTENT
+        text = taskInfo[Todoist.TITLE]
 
-            if currentProperty.lower() in message:
-                startIndex = message.find(currentProperty.lower())
+        # PROJECT
+        if taskInfo[Todoist.PROJECT] is None:
+            taskInfo[Todoist.PROJECT] = Todoist.INBOX_ID
+        else:
+            taskInfo[Todoist.PROJECT] = TodoistApi.getProjectID(taskInfo[Todoist.PROJECT])
 
-                if startIndex == -1:
-                    Utils.sendMessage(f"[INFO: Your message does not have the database property {property} on it]")
-                    continue
 
-                endIndexCurrentProperty = startIndex + len(currentProperty)
-                startIndexNextProperty = -1
+        TodoistHelper.addTask(text, taskInfo[Todoist.PROJECT], taskInfo[Todoist.DESCRIPTION], taskInfo[Todoist.DATE])
 
-                for nextProperty in propertiesToCheck:
-
-                    if nextProperty != currentProperty:
-                        index = message.find(nextProperty.lower())
-                        
-                        if index != -1 and endIndexCurrentProperty < index:
-                            startIndexNextProperty = index
-
-                value = message[endIndexCurrentProperty:startIndexNextProperty]
-                if startIndexNextProperty == -1:
-                    value = message[endIndexCurrentProperty:]
-                    
-                value = CheckGrammar.cleanStartAndEnd(value).capitalize()
-                taskInfo.update({currentProperty: value})
-
-        projectID = cls.getProjectID(taskInfo[project])
-        TodoistHelper.addTask(taskInfo[description], projectID)

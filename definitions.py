@@ -27,9 +27,9 @@ class Obsidian:
 
 # TODOIST
 class Todoist:
-    DESCRIPTION = "Texto"
+    TITLE = "Titulo"
+    DESCRIPTION = "Descripcion"
     PROJECT = "Proyecto"
-    REPEAT = "Repetir"
     DATE = "Fecha"
     TOKEN = "f290c9540c7063f6378da720e097f79959afda2b"
     PROJECT_DEV = "2248977832"
@@ -37,6 +37,7 @@ class Todoist:
     PROJECT_ANATOMIA = "2210170147"
     PROJECT_VALOR = "2248974110"
     INBOX_ID = "2210170146"
+    KEYS = [PROJECT, TITLE, DESCRIPTION, DATE]
 
 
 class NotionIDs:
@@ -86,7 +87,7 @@ class Help:
     \t\tGASTOS: -- ['cantidad' Titulo 'precio']\n\n\
     \t\tMEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]\n\n\
     \t\tDIARIO: -- [Titulo, Texto]\n\n\
-    \t\tTAREAS: -- [Texto, Fecha, Proyecto, Repetir]\n\n\
+    \t\tTAREAS: -- [Proyecto, Titulo, Descripcion, Fecha]\n\n\
     \t\tREFERENCIAS: -- [retrieve tags from Obsidian]"
 
 
