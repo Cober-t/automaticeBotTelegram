@@ -30,48 +30,34 @@ class ObsidianApi:
 
 
     @classmethod
-    def createNote(cls, messageObject):
+    def createNote(cls, fileData):
 
-        folder, title, text, tags, links = ObsidianApi.extractDataFromMessage(messageObject)
-        
-        folderPath = os.path.normpath(Obsidian.VAULT_DIRECTORY + f"\\{folder}")
+        try:
+            title = CheckGrammar.cleanStartAndEnd(fileData[Obsidian.TITLE])
+            text = CheckGrammar.cleanStartAndEnd(fileData[Obsidian.TEXT].text)
+            
+            links = Utils.extractLinksFroMessage(fileData[Obsidian.TEXT])
+            resources = fileData[Obsidian.RESOURCES]
+        except (IndexError, AttributeError) as error:
+            Utils.sendMessage(f"[ERROR: some fields are empty]")
+            return
+
+        tags = []
+        for tag in fileData[Obsidian.TAGS].split(','):
+            tag = CheckGrammar.cleanStartAndEnd(tag)
+            if tag not in tags:
+                tags.append(tag)
+
+        folderPath = os.path.normpath(Obsidian.VAULT_DIRECTORY + f"\\{fileData[Obsidian.FOLDER]}")
         Utils.checkDestinationFolderExist(folderPath)
         filePath = os.path.normpath(folderPath + f'\\{title}.md')
 
         try:
             newFile = MarkDownFileUtils(filePath)
-            newFile.createNote(title, text, tags, links)
+            newFile.createNote(title, text, tags, links, resources)
         except RuntimeError as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
-
-    @classmethod
-    def extractDataFromMessage(cls, messageObject):
-
-        links = Utils.extractLinksFroMessage(messageObject)
-        
-        text = CheckGrammar.cleanStartAndEnd(messageObject.text)
-        obsidianDict = Utils.getDictData(text, Obsidian.KEYS)
-
-        for key in Obsidian.KEYS:
-            try:
-                value = obsidianDict[key]
-                if value is None:
-                    Utils.sendMessage(f"[ERROR: {key} value is empty]")
-            except IndexError as error:
-                Utils.sendMessage(f"[ERROR: incorrect value for {key}: ({error})]")    
-        
-        tags = []
-        for tag in obsidianDict[Obsidian.TAGS].split(','):
-            tag = CheckGrammar.cleanStartAndEnd(tag)
-            if tag not in tags:
-                tags.append(tag)
-
-        return  obsidianDict[Obsidian.FOLDER],\
-                obsidianDict[Obsidian.TITLE],\
-                obsidianDict[Obsidian.TEXT],\
-                tags, links
-      
 
     @classmethod
     def retrieveTags(cls, note):
@@ -105,17 +91,17 @@ class MarkDownFileUtils:
 
 
     @classmethod
-    def createNote(cls, title, text, tags, links):
+    def createNote(cls, title, text, tags, links, resources):
 
         try:
-            MarkDownFileUtils.writeText(title, text, tags, links)
+            MarkDownFileUtils.writeText(title, text, tags, links, resources)
             MarkDownFileUtils.mdFile.create_md_file()
         except (RuntimeError, ValueError, IndexError) as error:
             Utils.sendMessage(f"[ERROR: create new fileNote error {error}")
 
 
     @classmethod
-    def writeText(cls, title, text, tags, links):
+    def writeText(cls, title, text, tags, links, resources):
 
         headerLevel = 2
         newFile = MarkDownFileUtils.mdFile
@@ -149,6 +135,12 @@ class MarkDownFileUtils:
             newFile.new_header(level=headerLevel, title=f'Texto:', style='setext')
             newFile.write(text=text + '\n')
             newFile.new_line()
+
+            if resources:
+                newFile.new_header(level=headerLevel, title=f'Recursos:', style='setext')
+                for resource in resources:
+                    newFile.write(text=f"![[{resource}]]" + '\n')
+                newFile.new_line()
             
             if MarkDownFileUtils.references:
                 newFile.new_header(level=headerLevel, title=f'Referencias:', style='setext')

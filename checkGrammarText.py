@@ -23,6 +23,9 @@ class CheckGrammar:
     @classmethod
     def cleanStartAndEnd(cls, text):
 
+        if text is None or text == '':
+            return
+        
         while text[0] in '.,: ':
             text = text[1:]
 

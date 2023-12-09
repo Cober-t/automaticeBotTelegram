@@ -22,7 +22,8 @@ class Obsidian:
     TEXT = 'Texto'
     TITLE = 'Titulo'
     TAGS = 'Etiquetas'
-    KEYS = [FOLDER, TEXT, TITLE, TAGS]
+    RESOURCES = 'Añadir recurso'
+    KEYS = [FOLDER, TEXT, TITLE, TAGS, RESOURCES]
 
 
 # TODOIST
@@ -126,7 +127,8 @@ DATAHOLDER = {
     COMMANDS.NOTA: {
         Obsidian.FOLDER: None,
         Obsidian.TITLE: None,
-        Obsidian.TITLE: None,
-        Obsidian.TAGS: None
+        Obsidian.TEXT: None,
+        Obsidian.TAGS: None,
+        Obsidian.RESOURCES: None,
     }
 }

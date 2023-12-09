@@ -60,8 +60,6 @@ def menssageConstructor(call):
 
             ObsidianApi.initVault()
             ObsidianApi.createNote(dictData)
-
-        Utils.sendMessage(f"[INFO: Entrada creada con exito!]")
         
 
 ###################################
@@ -111,10 +109,29 @@ def message_handler(messageObject):
         if page == COMMANDS.TAREA and (entry == Todoist.TITLE or entry == Todoist.DESCRIPTION):
             DATAHOLDER[page][entry] = messageObject
 
+        if page == COMMANDS.NOTA and entry == Obsidian.TEXT:
+            DATAHOLDER[page][entry] = messageObject
+
 
 ###################################
 #||||||| HANDLER RESOURCES |||||||#
 ###################################
+def saveResourceInObsidian(filePath, name, downloadedFile):
+
+    page = TelegramBot.lastCommand
+    entry = TelegramBot.entryData
+
+    if page == COMMANDS.NOTA and entry == Obsidian.RESOURCES:
+        
+        if DATAHOLDER[page][entry] is None:
+            DATAHOLDER[page][entry] = [name]
+        else:
+            DATAHOLDER[page][entry].append(name)
+
+        with open(filePath, 'wb') as document:
+            document.write(downloadedFile)
+
+
 @TelegramBot.instance.message_handler(content_types=['video'])
 def message_handler(messageObject):
 
@@ -125,10 +142,9 @@ def message_handler(messageObject):
         else:
             name = fileName
         
-        filePath = Obsidian.VAULT_DIRECTORY + "/Resources/" + name
+        filePath = Obsidian.VAULT_DIRECTORY + "/Resources/Videos/" + name
+        saveResourceInObsidian(filePath, name, downloadedFile)
 
-        with open(filePath, 'wb') as document:
-            document.write(downloadedFile)
     except TypeError as error:
         Utils.sendMessage(f"[ERROR : {error}]")
 
@@ -143,10 +159,9 @@ def message_handler(messageObject):
         else:
             name = messageObject.document.file_name
 
-        filePath = Obsidian.VAULT_DIRECTORY + "/Resources/" + name
+        filePath = Obsidian.VAULT_DIRECTORY + "/Resources/Documents/" + name
 
-        with open(filePath, 'wb') as document:
-            document.write(downloadedFile)
+        saveResourceInObsidian(filePath, name, downloadedFile)
 
     except TypeError as error:
         Utils.sendMessage(f"[ERROR : {error}]")
@@ -162,10 +177,9 @@ def message_handler(messageObject):
         else:
             name = fileName
 
-        filePath = Obsidian.VAULT_DIRECTORY + "/Resources/" + name
+        filePath = Obsidian.VAULT_DIRECTORY + "/Resources/Images/" + name
 
-        with open(filePath, 'wb') as photoFile:
-            photoFile.write(downloadedFile)
+        saveResourceInObsidian(filePath, name, downloadedFile)
 
     except TypeError as error:
         Utils.sendMessage(f"[ERROR : {error}]")
