@@ -95,6 +95,7 @@ def commandUpdate(messageObject):
     # git config pull.rebase false (hacer merge, estratergia por defecto)
     os.system("git pull")
     os.system("sudo chmod -R 777 ../automaticeBot")
+    os.system("sudo reboot now")
 
 
 ###################################
