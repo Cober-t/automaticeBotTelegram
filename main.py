@@ -1,6 +1,7 @@
 '''Main management class'''
 import subprocess
 import speech_recognition
+import os
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -90,7 +91,15 @@ def commandHelp(messageObject):
 @TelegramBot.instance.message_handler(commands=['update'])
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
-    Utils.sendMessage("[INFO: automaticeBot will be rebooted and updated in 10 secs]")
+
+    if os.path.exists("./output.txt"):
+        Utils.sendMessage("[INFO: Updating... last output...\n]")
+
+        with open("./output.txt", 'r', encoding='utf8') as data:
+            print(data.read())
+            data.close()
+    else:
+        Utils.sendMessage("[INFO: automaticeBot will be rebooted and updated in 10 secs]")
 
 
 ###################################
