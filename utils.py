@@ -24,8 +24,8 @@ class Utils:
             text = CheckGrammar.cleanStartAndEnd(text)
             if language == 'es':
                 text = CheckGrammar.checkGrammar(text, language)
-                # text = CheckGrammar.checkPuntuaction(text)
-                # text = CheckGrammar.checkGrammar(text, language)
+                text = CheckGrammar.checkPuntuaction(text)
+                text = CheckGrammar.checkGrammar(text, language)
             elif language == 'en':
                 text = CheckGrammar.checkGrammar(text, language)
 

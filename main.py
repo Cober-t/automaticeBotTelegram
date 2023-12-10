@@ -238,27 +238,29 @@ def message_handler(messageObject):
 
 @TelegramBot.instance.message_handler(content_types=['voice'])
 def voice_handler(messageObject):
-   
-    fileID = messageObject.voice.file_id
-    fileData = TelegramBot.instance.get_file(fileID)
-    downloadedFile = TelegramBot.instance.download_file(fileData.file_path)
+    fileId = messageObject.voice.file_id
+    fileData = TelegramBot.instance.get_file(fileId)
 
-    with open('./media/audio.ogg', 'wb') as document:
-        document.write(downloadedFile)
+    downloadFile = TelegramBot.instance.download_file(fileData.file_path)
 
-    source = os.path.abspath("media/audio.ogg")
-    final = os.path.abspath("media/audio.wav")
-    subprocess.run(['ffmpeg', '-i', source, final, '-y'])
-    fileData = speech_recognition.AudioFile('./media/audio.wav')
+    sourceFile = os.path.abspath("media/audio.ogg")
+    outputFile = os.path.abspath("media/audio.wav")
 
-    try:
-        recognizer = speech_recognition.Recognizer()
-        audio = recognizer.record(fileData)
-        text = recognizer.recognize_google(audio, language='es_ES')
-        Utils.sendMessage(text)
+    with open(sourceFile, 'wb') as file:
+        file.write(downloadFile)
 
-    except TypeError as error:
-        Utils.sendMessage(f"[ERORR : {error}]")
+    subprocess.run(['ffmpeg', '-i', sourceFile, outputFile, '-y'])
+    fileData = speech_recognition.AudioFile(outputFile)
+    with fileData as source:
+        try:
+            recognizer = speech_recognition.Recognizer()
+            audio = recognizer.record(source)
+            text = recognizer.recognize_google(audio, language='es_ES')
+            text = Utils.fixFullText(text)
+            Utils.sendMessage(text)
+
+        except TypeError as error:
+            Utils.sendMessage(f"[ERORR : {error}]")
 
 
 TelegramBot.inifinityPolling()
