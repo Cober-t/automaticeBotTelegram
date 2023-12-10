@@ -90,7 +90,12 @@ def commandHelp(messageObject):
 @TelegramBot.instance.message_handler(commands=['update'])
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
-    print("TEST")
+    import os
+    os.system("cd ~/shared/Otros/automaticeBot")
+    os.system("git pull origin main")
+    os.system("git checkout")
+    os.system("git reset --hard")
+    os.system("sudo chmod -R 777 ../automaticeBot")
 
 
 ###################################
