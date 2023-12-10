@@ -92,11 +92,16 @@ def commandHelp(messageObject):
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
 
+    # On /etc/rc.local
+    # git fetch &> ./output.txt
+    # git reset --hard HEAD &>> ./output.txt
+    # git merge origin/main &>> ./output.txt
+    # sudo chmod -R 777 ../automaticeBot/
     if os.path.exists("./output.txt"):
         with open("./output.txt", 'r', encoding='utf8') as data:
             Utils.sendMessage(f"[INFO: Updating... last output {data.read()}]")
-            print(data.read())
             data.close()
+            os.system("sudo reboot now")
     else:
         Utils.sendMessage("[INFO: automaticeBot will be rebooted and updated in 10 secs]")
 
