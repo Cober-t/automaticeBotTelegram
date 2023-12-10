@@ -90,14 +90,8 @@ def commandHelp(messageObject):
 @TelegramBot.instance.message_handler(commands=['update'])
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
-    import os
-    # git config pull.rebase false (hacer merge, estratergia por defecto)
-    os.system( "cd ~/shared/Otros/automaticeBot;\
-                git fetch;\
-                git reset --hard HEAD;\
-                git merge origin/main;\
-                sudo chmod -R 777 ../automaticeBot;\
-                sudo sleep 10; sudo reboot")
+    Utils.sendMessage("[INFO: automaticeBot will be rebooted and updated in 10 secs]"])
+
 
 ###################################
 #|||||||| HANDLER MESSAGES |||||||#
