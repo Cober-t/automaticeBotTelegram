@@ -95,12 +95,14 @@ def getFolderStructure(path, ignoreFolders=None):
     for root, dirs, files in os.walk(path):
 
         for folder in dirs:
-            folderName = os.path.normpath(folder).split('\\')[-1]
+            folderName = os.path.normpath(folder).replace('\\', '/')
+            folderName = folderName.split('/')[-1]
             if ignoreFolders is not None and folderName in ignoreFolders:
                 continue
             directoriesInFolder.update(getFolderStructure(os.path.join(root, folder)))
-            
-        parentFolder = os.path.normpath(root).split('\\')[-1]
+        
+        parentFolder = os.path.normpath(root).replace('\\', '/')
+        parentFolder = parentFolder.split('/')[-1]
         dictFolder = {parentFolder: directoriesInFolder}
 
         return dictFolder
