@@ -91,16 +91,13 @@ def commandHelp(messageObject):
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
     import os
-    os.system("cd ~/shared/Otros/automaticeBot")
     # git config pull.rebase false (hacer merge, estratergia por defecto)
-    os.system("git fetch")
-    os.system("git reset --hard HEAD")
-    os.system("git merge origin/main")
-    os.system("sudo chmod -R 777 ../automaticeBot")
-    os.system("sudo sleep 10; sudo reboot")
-    Utils.sendMessage(f"[INFO: automaticeBot will be updated and reboot at 10 seconds]")
-
-
+    os.system( "cd ~/shared/Otros/automaticeBot;\
+                git fetch;\
+                git reset --hard HEAD;\
+                git merge origin/main;\
+                sudo chmod -R 777 ../automaticeBot;\
+                sudo sleep 10; sudo reboot")
 
 ###################################
 #|||||||| HANDLER MESSAGES |||||||#
