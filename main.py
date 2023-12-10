@@ -88,23 +88,63 @@ def commandHelp(messageObject):
     Utils.sendMessage(Help.MESSAGE)
 
 
+def getFolderStructure(path, ignoreFolders=None):
+
+    directoriesInFolder = {}
+
+    for root, dirs, files in os.walk(path):
+
+        for folder in dirs:
+            folderName = os.path.normpath(folder).split('\\')[-1]
+            if ignoreFolders is not None and folderName in ignoreFolders:
+                continue
+            directoriesInFolder.update(getFolderStructure(os.path.join(root, folder)))
+            
+        parentFolder = os.path.normpath(root).split('\\')[-1]
+        dictFolder = {parentFolder: directoriesInFolder}
+
+        return dictFolder
+
+
+def formatMessageFolderStructure(foldersDict, depth=0):
+    
+    message = ''
+    for folder, content in foldersDict.items():
+
+        message += "|   "*depth + "|-" + f"{folder}\n"
+
+        if content != {}:
+            childrenFolders = formatMessageFolderStructure(content, depth + 1)
+            message += childrenFolders
+
+    return message
+
+
+@TelegramBot.instance.message_handler(commands=['carpetas'])
+def commandHelp(messageObject):
+    '''Send help and info about the commands and his format'''
+    folderStructure = getFolderStructure(Obsidian.VAULT_DIRECTORY, Obsidian.IGNORE_FOLDERS)
+    Utils.sendMessage(formatMessageFolderStructure(folderStructure))
+
+
+@TelegramBot.instance.message_handler(commands=['etiquetas'])
+def commandHelp(messageObject):
+    '''Send help and info about the commands and his format'''
+    message = ''
+    for tag in ObsidianApi.retrieveAllTags():
+        message += tag + "\t"
+    Utils.sendMessage(message[:-1])
+
+
 @TelegramBot.instance.message_handler(commands=['update'])
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
 
-    # On /etc/rc.local
-    # git fetch &> output.txt
-    # git reset --hard HEAD &>> output.txt
-    # git merge origin/main &>> output.txt
-    # git pull &>> output.txt
-    # sudo chmod -R 777 ../automaticeBot/
-    if os.path.exists("./output.txt"):
-        with open("./output.txt", 'r', encoding='utf8') as data:
-            Utils.sendMessage(f"[INFO: Updating... last output {data.read()}]")
-            data.close()
-            os.system("sudo reboot now")
-    else:
-        Utils.sendMessage("[INFO: automaticeBot will be rebooted and updated in 10 secs]")
+    outputFetch = subprocess.check_output("git fetch")
+    outputReset = subprocess.check_output("git reset --hard HEAD")
+    outputMerge = subprocess.check_output("git merge origin/main")
+    Utils.sendMessage(f"Fetch: {outputFetch}\nReset: {outputReset}\nMerge: {outputMerge}")
+    os.system("sleep 10; sudo reboot now;")
 
 
 ###################################
@@ -116,7 +156,6 @@ def message_handler(messageObject):
     page = TelegramBot.lastCommand
     entry = TelegramBot.entryData
     
-
     if page in COMMANDS.KEYS:
         DATAHOLDER[page][entry] = messageObject.text
 

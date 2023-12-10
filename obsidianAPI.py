@@ -23,10 +23,7 @@ class ObsidianApi:
 
     @classmethod
     def getVault(cls):
-        if not ObsidianApi.vault:
-            Utils.sendMessage("[INFO: Building Obsidian vault...]")
-            ObsidianApi.initVault()
-        return ObsidianApi.vault
+        return ObsidianApi.initVault()
 
 
     @classmethod
