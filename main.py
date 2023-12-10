@@ -90,7 +90,7 @@ def commandHelp(messageObject):
 @TelegramBot.instance.message_handler(commands=['update'])
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
-    Utils.sendMessage("[INFO: automaticeBot will be rebooted and updated in 10 secs]"])
+    Utils.sendMessage("[INFO: automaticeBot will be rebooted and updated in 10 secs]")
 
 
 ###################################
