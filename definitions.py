@@ -17,7 +17,7 @@ class MetheoData:
 
 # OBSIDIAN
 class Obsidian:
-    VAULT_DIRECTORY = "C:/Users/Jorge/Documents/ObsidianVault"  # \\Cober\coberstorage\ObsidianVault\
+    VAULT_DIRECTORY = "../ObsidianVault"
     FOLDER = 'Carpeta'
     TEXT = 'Texto'
     TITLE = 'Titulo'

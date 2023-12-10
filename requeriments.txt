@@ -9,3 +9,5 @@ pip install pyTelegramBotAPI
 pip install SpeechRecognition
 pip install mdutils
 pip install gitpython
+
+sudo nano /etc/rc.local

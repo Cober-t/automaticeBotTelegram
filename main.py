@@ -90,7 +90,11 @@ def commandHelp(messageObject):
 @TelegramBot.instance.message_handler(commands=['update'])
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
-    print(f'Update')
+    print("SUCCESS")
+    print(f'git clone https://github.com/Cober-t/automaticeBotTelegram ../temp')
+    print(f'mv ../temp/.git ./.git')
+    print(f'rm -rf ../temp')
+
 
 
 ###################################

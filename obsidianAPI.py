@@ -48,9 +48,9 @@ class ObsidianApi:
             if tag not in tags:
                 tags.append(tag)
 
-        folderPath = os.path.normpath(Obsidian.VAULT_DIRECTORY + f"\\{fileData[Obsidian.FOLDER]}")
+        folderPath = os.path.normpath(Obsidian.VAULT_DIRECTORY + f"/{fileData[Obsidian.FOLDER]}")
         Utils.checkDestinationFolderExist(folderPath)
-        filePath = os.path.normpath(folderPath + f'\\{title}.md')
+        filePath = os.path.normpath(folderPath + f'/{title}.md')
 
         try:
             newFile = MarkDownFileUtils(filePath)
@@ -87,6 +87,7 @@ class MarkDownFileUtils:
     @classmethod
     def __init__(cls, path):
         
+        print(path)
         MarkDownFileUtils.mdFile = MdUtils(file_name=path)
 
 
