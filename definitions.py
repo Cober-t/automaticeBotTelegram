@@ -94,7 +94,7 @@ class Help:
     \t\tDIARIO: -- [Titulo, Texto]\n\n\
     \t\tTAREAS: -- [Proyecto, Titulo, Descripcion, Fecha]\n\n\
     \t\tNOTAS: -- [Carpeta, Titulo, Texto, Fecha, Etiquetas]\
-    \t\tUPDATE: -- Actualiza la herramienta en el servidor"
+    \t\tUPDATE: -- Actualiza la herramienta en el servidor (updated)"
 
 
 DATAHOLDER = {
