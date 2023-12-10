@@ -93,6 +93,7 @@ def commandUpdate(messageObject):
     import os
     os.system("cd ~/shared/Otros/automaticeBot")
     # git config pull.rebase false (hacer merge, estratergia por defecto)
+    os.system("git reset --hard")
     os.system("git pull")
     os.system("sudo chmod -R 777 ../automaticeBot")
     os.system("sudo reboot now")
