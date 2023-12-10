@@ -142,11 +142,7 @@ def commandHelp(messageObject):
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
 
-    outputFetch = subprocess.check_output("git fetch")
-    outputReset = subprocess.check_output("git reset --hard HEAD")
-    outputMerge = subprocess.check_output("git merge origin/main")
-    Utils.sendMessage(f"Fetch: {outputFetch}\nReset: {outputReset}\nMerge: {outputMerge}")
-    os.system("sleep 10; sudo reboot now;")
+    Utils.sendMessage(f"Esto no hace nada aún")
 
 
 ###################################
@@ -241,27 +237,28 @@ def message_handler(messageObject):
 
 
 @TelegramBot.instance.message_handler(content_types=['voice'])
-def voice_handler(message):
-   fileId = message.voice.file_id
-   fileData = TelegramBot.instance.get_file(fileId)
+def voice_handler(messageObject):
+   
+    fileID = messageObject.voice.file_id
+    fileData = TelegramBot.instance.get_file(fileID)
+    downloadedFile = TelegramBot.instance.download_file(fileData.file_path)
 
-   downloadFile = TelegramBot.instance.download_file(fileData.file_path)
+    with open('./media/audio.ogg', 'wb') as document:
+        document.write(downloadedFile)
 
-   with open('./media/audio.ogg', 'wb') as file:
-       file.write(downloadFile)
+    source = os.path.abspath("media/audio.ogg")
+    final = os.path.abspath("media/audio.wav")
+    subprocess.run(['ffmpeg', '-i', source, final, '-y'])
+    fileData = speech_recognition.AudioFile('./media/audio.wav')
 
-   subprocess.run(['ffmpeg', '-i', './media/audio.ogg', './media/audio.wav', '-y'])
-   fileData = speech_recognition.AudioFile('./media/audio.wav')
+    try:
+        recognizer = speech_recognition.Recognizer()
+        audio = recognizer.record(fileData)
+        text = recognizer.recognize_google(audio, language='es_ES')
+        Utils.sendMessage(text)
 
-
-   try:
-       recognizer = speech_recognition.Recognizer()
-       audio = recognizer.record(fileData)
-       text = recognizer.recognize_google(audio, language='es_ES')
-       Utils.sendMessage(text)
-
-   except TypeError as error:
-       Utils.sendMessage(f"[ERORR : {error}]")
+    except TypeError as error:
+        Utils.sendMessage(f"[ERORR : {error}]")
 
 
 TelegramBot.inifinityPolling()
