@@ -93,7 +93,7 @@ class Help:
     \t\tMEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]\n\n\
     \t\tDIARIO: -- [Titulo, Texto]\n\n\
     \t\tTAREAS: -- [Proyecto, Titulo, Descripcion, Fecha]\n\n\
-    \t\tNOTA: -- [Carpeta, Titulo, Texto, Fecha, Etiquetas]"
+    \t\tNOTAS: -- [Carpeta, Titulo, Texto, Fecha, Etiquetas]"
 
 
 DATAHOLDER = {

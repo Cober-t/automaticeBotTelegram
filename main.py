@@ -93,8 +93,9 @@ def commandUpdate(messageObject):
     import os
     os.system("cd ~/shared/Otros/automaticeBot")
     # git config pull.rebase false (hacer merge, estratergia por defecto)
-    os.system("git reset --hard")
-    os.system("git pull")
+    os.system("git fetch")
+    os.system("git reset --hard HEAD")
+    os.system("git merge origin/main")
     os.system("sudo chmod -R 777 ../automaticeBot")
     os.system("sudo sleep 10; sudo reboot")
     Utils.sendMessage(f"[INFO: automaticeBot will be updated and reboot at 10 seconds]")
