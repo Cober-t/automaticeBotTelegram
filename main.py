@@ -96,7 +96,7 @@ def commandUpdate(messageObject):
     os.system("git reset --hard")
     os.system("git pull")
     os.system("sudo chmod -R 777 ../automaticeBot")
-    os.system("sudo reboot now")
+    os.system("sudo sleep 60; sudo reboot")
 
 
 ###################################
