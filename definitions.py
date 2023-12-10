@@ -24,7 +24,7 @@ class Obsidian:
     TAGS = 'Etiquetas'
     RESOURCES = 'Añadir recurso'
     KEYS = [FOLDER, TEXT, TITLE, TAGS, RESOURCES]
-    IGNORE_FOLDERS = [".obsidian"]
+    IGNORE_FOLDERS = [".obsidian", ".trash"]
 
 
 # TODOIST
