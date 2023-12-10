@@ -92,9 +92,8 @@ def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
     import os
     os.system("cd ~/shared/Otros/automaticeBot")
-    os.system("git pull origin main")
-    os.system("git checkout")
-    os.system("git reset --hard")
+    # git config pull.rebase false (hacer merge, estratergia por defecto)
+    os.system("git pull")
     os.system("sudo chmod -R 777 ../automaticeBot")
 
 
