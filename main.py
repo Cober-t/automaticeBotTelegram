@@ -93,9 +93,8 @@ def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
 
     if os.path.exists("./output.txt"):
-        Utils.sendMessage("[INFO: Updating... last output...\n]")
-
         with open("./output.txt", 'r', encoding='utf8') as data:
+            Utils.sendMessage(f"[INFO: Updating... last output {data.read()}]")
             print(data.read())
             data.close()
     else:
