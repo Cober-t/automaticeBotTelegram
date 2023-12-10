@@ -93,9 +93,10 @@ def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
 
     # On /etc/rc.local
-    # git fetch &> ./output.txt
-    # git reset --hard HEAD &>> ./output.txt
-    # git merge origin/main &>> ./output.txt
+    # git fetch &> output.txt
+    # git reset --hard HEAD &>> output.txt
+    # git merge origin/main &>> output.txt
+    # git pull &>> output.txt
     # sudo chmod -R 777 ../automaticeBot/
     if os.path.exists("./output.txt"):
         with open("./output.txt", 'r', encoding='utf8') as data:
