@@ -90,34 +90,44 @@ def commandHelp(messageObject):
 
 def getFolderStructure(path, ignoreFolders=None):
 
-    directoriesInFolder = {}
+    if os.path.isfile(path):
+        return ''
 
-    for root, dirs, files in os.walk(path):
+    subFolders = {}
+    root = os.path.normpath(path).split("\\")[-1]
 
-        for folder in dirs:
-            folderName = os.path.normpath(folder).replace('\\', '/')
-            folderName = folderName.split('/')[-1]
-            if ignoreFolders is not None and folderName in ignoreFolders:
-                continue
-            directoriesInFolder.update(getFolderStructure(os.path.join(root, folder)))
-        
-        parentFolder = os.path.normpath(root).replace('\\', '/')
-        parentFolder = parentFolder.split('/')[-1]
-        dictFolder = {parentFolder: directoriesInFolder}
+    for folder in os.listdir(path):
 
-        return dictFolder
+        if ignoreFolders is not None and folder in ignoreFolders:
+            continue
+
+        subFoldersPath = os.path.join(path, folder)
+        subFolders.update(getFolderStructure(subFoldersPath, ignoreFolders))
+
+    dictFolder = { root: subFolders}
+
+    return dictFolder
 
 
-def formatMessageFolderStructure(foldersDict, depth=0):
-    
-    message = ''
-    for folder, content in foldersDict.items():
+def formatMessage(folderStructure, ignoreFolders=None):
 
-        message += "|   "*depth + "|-" + f"{folder}\n"
+    root = list(folderStructure.keys())[0]
+    message = formatMessageFolderStructure(root, folderStructure[root], ignoreFolders)
+    return "~" + message[3:]
 
-        if content != {}:
-            childrenFolders = formatMessageFolderStructure(content, depth + 1)
-            message += childrenFolders
+
+def formatMessageFolderStructure(folder, content, ignoreFolder, spaces=''):
+
+    if ignoreFolder is not None and folder in ignoreFolder:
+        return ''
+
+    message = spaces[:-4] + "|--" + folder + "\n"
+
+    subFolders = list(content.keys())
+    for name in subFolders:
+
+        space = "    " if name == subFolders[-1] else "|   "
+        message += formatMessageFolderStructure(name, content[name], ignoreFolder, spaces + space)
 
     return message
 
@@ -126,7 +136,7 @@ def formatMessageFolderStructure(foldersDict, depth=0):
 def commandHelp(messageObject):
     '''Send help and info about the commands and his format'''
     folderStructure = getFolderStructure(Obsidian.VAULT_DIRECTORY, Obsidian.IGNORE_FOLDERS)
-    Utils.sendMessage(formatMessageFolderStructure(folderStructure))
+    Utils.sendMessage(formatMessage(folderStructure))
 
 
 @TelegramBot.instance.message_handler(commands=['etiquetas'])
@@ -142,7 +152,13 @@ def commandHelp(messageObject):
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
 
-    Utils.sendMessage(f"Esto no hace nada aún")
+    Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
+    
+    dirName = os.path.dirname(__file__)
+    updateRepositoryCommandPath = os.path.join(dirName, "updateRepository.py")
+    os.system(f"python {updateRepositoryCommandPath}")
+
+    Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
 
 
 ###################################
