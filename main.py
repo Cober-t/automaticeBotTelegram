@@ -94,7 +94,7 @@ def getFolderStructure(path, ignoreFolders=None):
         return ''
 
     subFolders = {}
-    root = os.path.normpath(path).split("\\")[-1]
+    root = os.path.normpath(path).split("/")[-1]
 
     for folder in os.listdir(path):
 
@@ -154,9 +154,7 @@ def commandUpdate(messageObject):
 
     Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
     
-    dirName = os.path.dirname(__file__)
-    updateRepositoryCommandPath = os.path.join(dirName, "updateRepository.py")
-    os.system(f"python {updateRepositoryCommandPath}")
+    os.system(f"python ~/shared/Otros/updateRepository.py")
 
     Utils.sendMessage(f"[INFO: Reiniciando server...]]")
 
