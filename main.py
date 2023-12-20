@@ -158,9 +158,9 @@ def commandUpdate(messageObject):
     with subprocess.Popen(["python /home/pi/shared/Otros/updateRepository.py"], shell=True) as process:
         out, err = process.communicate()
         if out:
-            print(out)
+            Utils.sendMessage(out)
         if err:
-            print(err)
+            Utils.sendMessage(err)
 
     Utils.sendMessage(f"[INFO: Reiniciando server...]]")
 
