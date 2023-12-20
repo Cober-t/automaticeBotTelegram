@@ -121,7 +121,7 @@ def formatMessageFolderStructure(folder, content, ignoreFolder, spaces=''):
     if ignoreFolder is not None and folder in ignoreFolder:
         return ''
 
-    message = spaces[:-4] + "|---" + folder + "\n"
+    message = spaces[:-4] + "|--" + folder + "\n"
 
     subFolders = list(content.keys())
     for name in subFolders:
@@ -151,10 +151,16 @@ def commandHelp(messageObject):
 @TelegramBot.instance.message_handler(commands=['update'])
 def commandUpdate(messageObject):
     '''Update the API on the Raspberry'''
+    import subprocess
 
     Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
     
-    os.system(f"python ~/shared/Otros/updateRepository.py")
+    with subprocess.Popen(f"python ~/shared/Otros/updateRepository.py") as process:
+        out, err = process.communicate()
+        if out:
+            Utils.sendMessage(out)
+        if err:
+            Utils.sendMessage(err)
 
     Utils.sendMessage(f"[INFO: Reiniciando server...]]")
 
