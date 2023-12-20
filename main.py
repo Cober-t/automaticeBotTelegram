@@ -165,6 +165,22 @@ def commandUpdate(messageObject):
     Utils.sendMessage(f"[INFO: Reiniciando server...]]")
 
 
+@TelegramBot.instance.message_handler(commands=['boot'])
+def commandUpdate(messageObject):
+    '''Update the API on the Raspberry'''
+    import subprocess
+
+    Utils.sendMessage(f"[INFO: Encendiendo ordenador...]]")
+    
+    with subprocess.Popen(["python /home/pi/shared/Otros/remoteBoot.py"], shell=True) as process:
+        out, err = process.communicate()
+        if out:
+            Utils.sendMessage(out)
+        if err:
+            Utils.sendMessage(err)
+
+
+
 ###################################
 #|||||||| HANDLER MESSAGES |||||||#
 ###################################
