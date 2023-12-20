@@ -158,7 +158,7 @@ def commandUpdate(messageObject):
     updateRepositoryCommandPath = os.path.join(dirName, "updateRepository.py")
     os.system(f"python {updateRepositoryCommandPath}")
 
-    Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
+    Utils.sendMessage(f"[INFO: Reiniciando server...]]")
 
 
 ###################################
