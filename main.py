@@ -155,7 +155,7 @@ def commandUpdate(messageObject):
 
     Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
     
-    with subprocess.Popen(["python ~/shared/Otros/updateRepository.py"], shell=True) as process:
+    with subprocess.Popen(["python /home/pi/shared/Otros/updateRepository.py"], shell=True) as process:
         out, err = process.communicate()
         if out:
             print(out)
