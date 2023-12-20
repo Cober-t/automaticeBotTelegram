@@ -121,7 +121,7 @@ def formatMessageFolderStructure(folder, content, ignoreFolder, spaces=''):
     if ignoreFolder is not None and folder in ignoreFolder:
         return ''
 
-    message = spaces[:-4] + "|--" + folder + "\n"
+    message = spaces[:-4] + "|---" + folder + "\n"
 
     subFolders = list(content.keys())
     for name in subFolders:
