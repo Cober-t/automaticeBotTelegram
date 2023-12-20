@@ -166,7 +166,7 @@ def commandUpdate(messageObject):
 
 
 @TelegramBot.instance.message_handler(commands=['boot'])
-def commandUpdate(messageObject):
+def commandBoots(messageObject):
     '''Update the API on the Raspberry'''
     import subprocess
 
