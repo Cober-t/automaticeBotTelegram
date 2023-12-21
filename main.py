@@ -133,14 +133,14 @@ def formatMessageFolderStructure(folder, content, ignoreFolder, spaces=''):
 
 
 @TelegramBot.instance.message_handler(commands=['carpetas'])
-def commandHelp(messageObject):
+def commandPrintFolder(messageObject):
     '''Send help and info about the commands and his format'''
     folderStructure = getFolderStructure(Obsidian.VAULT_DIRECTORY, Obsidian.IGNORE_FOLDERS)
     Utils.sendMessage(formatMessage(folderStructure))
 
 
 @TelegramBot.instance.message_handler(commands=['etiquetas'])
-def commandHelp(messageObject):
+def commandPrintTags(messageObject):
     '''Send help and info about the commands and his format'''
     message = ''
     for tag in ObsidianApi.retrieveAllTags():
@@ -166,7 +166,7 @@ def commandUpdate(messageObject):
 
 
 @TelegramBot.instance.message_handler(commands=['boot'])
-def commandBoots(messageObject):
+def commandBoot(messageObject):
     '''Update the API on the Raspberry'''
     import subprocess
 
