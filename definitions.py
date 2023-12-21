@@ -17,7 +17,7 @@ class MetheoData:
 
 # OBSIDIAN
 class Obsidian:
-    VAULT_DIRECTORY = "../ObsidianVault"
+    VAULT_DIRECTORY = "/home/pi/shared/Otros/ObsidianVault"
     FOLDER = 'Carpeta'
     TEXT = 'Texto'
     TITLE = 'Titulo'
