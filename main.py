@@ -172,7 +172,7 @@ def commandBoot(messageObject):
 
     Utils.sendMessage(f"[INFO: Encendiendo ordenador...]]")
     
-    with subprocess.Popen(["python /home/pi/shared/Otros/remoteBoot.py"], shell=True) as process:
+    with subprocess.Popen(["cat /home/pi/shared/Otros/remoteBoot.py"], shell=True) as process:
         out, err = process.communicate()
         if out:
             Utils.sendMessage(out)
