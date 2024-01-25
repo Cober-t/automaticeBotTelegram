@@ -72,11 +72,12 @@ def commandDiary(messageObject):
     TelegramBot.lastCommand = messageObject.text
 
     markup = InlineKeyboardMarkup()
-    markup.row_width = 2
 
     for key in DATAHOLDER[TelegramBot.lastCommand]:
         DATAHOLDER[TelegramBot.lastCommand][key] = None
         markup.add(InlineKeyboardButton(key, callback_data=key))
+        
+    markup.row_width = 2
     markup.add(InlineKeyboardButton("Crear Entrada", callback_data="Update"))
 
     TelegramBot.instance.send_message(messageObject.chat.id, "Rellena estos campos para crear la entrada", reply_markup=markup)

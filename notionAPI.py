@@ -131,8 +131,11 @@ class NotionApi:
 
         try:
             properties = NotionApi.createProperties(fileData)
-            NotionUtils.createPage(ID, properties)
-            Utils.sendMessage(f"[INFO: Entrada creada con exito!]")
+            if properties:
+                NotionUtils.createPage(ID, properties)
+                Utils.sendMessage(f"[INFO: Entrada creada con exito!]")
+            else:
+                Utils.sendMessage(properties)
         except (RuntimeError, ValueError, IndexError) as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
@@ -163,10 +166,16 @@ class NotionApi:
                 newProperty.setAuthor(value)
 
             elif entryKey is NotionProperties.AMOUNT:
+                if not value:
+                    value = 1
                 newProperty.setNumber(NotionProperties.AMOUNT, int(value))
 
             elif entryKey is NotionProperties.PRICE:
+                if not value:
+                    return "[ERROR: El campo de precio esta vacío o es invalido]"
                 price = value.replace(',', '.')
+                if price[0] != '+':
+                    price = '-' + price
                 newProperty.setNumber(NotionProperties.PRICE, float(price))
 
             elif entryKey is NotionProperties.RATING:

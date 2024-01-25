@@ -37,7 +37,7 @@ class TodoistHelper:
         return TodoistHelper.api.get_tasks()
 
     @classmethod
-    def addTask(cls, title, projectID, content, due=None):
+    def addTask(cls, title, projectID=Todoist.INBOX_ID, content='', due=None):
         try:
             if content is None:
                 content = ''
@@ -80,6 +80,8 @@ class TodoistApi:
 
     @classmethod
     def getProjectID(cls, projectName):
+        if not projectName:
+            return Todoist.INBOX_ID
         for project in TodoistHelper.getProjects():
             if projectName.lower() == project.name.lower():
                 return project.id
