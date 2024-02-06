@@ -160,18 +160,12 @@ def commandUpdate(messageObject):
 
     Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
     
-    with subprocess.Popen(["python /home/pi/shared/Otros/updateRepository.py"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-        for line in process.std:
-            try:
-                Utils.sendMessage(line.decode().rstrip())
-            except UnicodeDecodeError as error:
-                Utils.sendMessage(f"ERROR {error} - {line.decode('windows-1252').rstrip()}")
-
-        for line in process.err:
-            try:
-                Utils.sendMessage(line.decode().rstrip())
-            except UnicodeDecodeError as error:
-                Utils.sendMessage(f"ERROR {error} - {line.decode('windows-1252').rstrip()}")
+    with subprocess.Popen(["python /home/pi/shared/Otros/updateRepository.py"], shell=True) as process:
+        out, err = process.communicate()
+        if out:
+            Utils.sendMessage(out)
+        if err:
+            Utils.sendMessage(err)
         
     Utils.sendMessage(f"[INFO: Reiniciando server...]]")
 
