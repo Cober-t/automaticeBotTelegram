@@ -26,7 +26,9 @@ from obsidianAPI import ObsidianApi
 # timer = Timer(secs, checkDailyTasks)
 # timer.start()
 
+
 TelegramBot.initBot()
+Utils.sendMessage(f"[INFO: Iniciando bot de telegram!]]")
 
 
 @TelegramBot.instance.callback_query_handler(func=lambda call: True)
@@ -38,6 +40,7 @@ def menssageConstructor(call):
 
         key = TelegramBot.lastCommand
         dictData = DATAHOLDER[key]
+        TelegramBot.lastCommand = None
 
         # Notion pages
         if key in (COMMANDS.DIARIO, COMMANDS.GASTOS, COMMANDS.MEDIA):
@@ -131,12 +134,6 @@ def formatMessageFolderStructure(folder, content, ignoreFolder, spaces=''):
     return message
 
 
-@TelegramBot.instance.message_handler()
-def retrieveNote(messageObject):
-    if messageObject.text not in DATAHOLDER.keys():
-        Utils.sendMessage(ObsidianApi.retrieveNote(messageObject.text))
-
-
 @TelegramBot.instance.message_handler(commands=['carpetas'])
 def commandPrintFolder(messageObject):
     '''Send help and info about the commands and his format'''
@@ -144,7 +141,7 @@ def commandPrintFolder(messageObject):
     Utils.sendMessage(formatMessage(folderStructure))
 
 
-@TelegramBot.instance.message_handler(commands=['ultimanota'])
+@TelegramBot.instance.message_handler(commands=['ultimaNota'])
 def commandPrintFolder(messageObject):
     Utils.sendMessage(ObsidianApi.retrieveLastNote())
 
@@ -197,6 +194,10 @@ def commandBoot(messageObject):
 @TelegramBot.instance.message_handler(content_types=['text'])
 def message_handler(messageObject):
 
+    if not TelegramBot.lastCommand:
+        Utils.sendMessage(ObsidianApi.retrieveNote(messageObject.text))
+        return
+    
     page = TelegramBot.lastCommand
     entry = TelegramBot.entryData
     
