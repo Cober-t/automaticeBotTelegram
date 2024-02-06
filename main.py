@@ -71,13 +71,16 @@ def commandDiary(messageObject):
 
     TelegramBot.lastCommand = messageObject.text
 
+    if TelegramBot.lastCommand not in DATAHOLDER.keys():
+        Utils.sendMessage(ObsidianApi.retrieveNote(messageObject.text))
+        return
+
     markup = InlineKeyboardMarkup()
 
     for key in DATAHOLDER[TelegramBot.lastCommand]:
         DATAHOLDER[TelegramBot.lastCommand][key] = None
         markup.add(InlineKeyboardButton(key, callback_data=key))
         
-    markup.row_width = 2
     markup.add(InlineKeyboardButton("Crear Entrada", callback_data="Update"))
 
     TelegramBot.instance.send_message(messageObject.chat.id, "Rellena estos campos para crear la entrada", reply_markup=markup)
@@ -95,7 +98,7 @@ def getFolderStructure(path, ignoreFolders=None):
         return ''
 
     subFolders = {}
-    root = os.path.normpath(path).split("/")[-1]
+    root = os.path.basename(path)
 
     for folder in os.listdir(path):
 
@@ -105,7 +108,7 @@ def getFolderStructure(path, ignoreFolders=None):
         subFoldersPath = os.path.join(path, folder)
         subFolders.update(getFolderStructure(subFoldersPath, ignoreFolders))
 
-    dictFolder = { root: subFolders}
+    dictFolder = {root: subFolders}
 
     return dictFolder
 
@@ -138,6 +141,11 @@ def commandPrintFolder(messageObject):
     '''Send help and info about the commands and his format'''
     folderStructure = getFolderStructure(Obsidian.VAULT_DIRECTORY, Obsidian.IGNORE_FOLDERS)
     Utils.sendMessage(formatMessage(folderStructure))
+
+
+@TelegramBot.instance.message_handler(commands=['ultimaNota'])
+def commandPrintFolder(messageObject):
+    Utils.sendMessage(ObsidianApi.retrieveLastNote())
 
 
 @TelegramBot.instance.message_handler(commands=['etiquetas'])

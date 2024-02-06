@@ -32,6 +32,7 @@ class ObsidianApi:
         try:
             title = CheckGrammar.cleanStartAndEnd(fileData[Obsidian.TITLE])
             text = CheckGrammar.cleanStartAndEnd(fileData[Obsidian.TEXT].text)
+            Obsidian.LAST_NOTE = title
             
             links = Utils.extractLinksFroMessage(fileData[Obsidian.TEXT])
             resources = fileData[Obsidian.RESOURCES]
@@ -55,6 +56,18 @@ class ObsidianApi:
         except RuntimeError as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
+
+    @classmethod
+    def retrieveNote(cls, noteName):
+        return ObsidianApi.getVault().get_readable_text(noteName)
+    
+
+    @classmethod
+    def retrieveLastNote(cls):
+        if not Obsidian.LAST_NOTE:
+            return
+        return ObsidianApi.retrieveNote(Obsidian.LAST_NOTE)
+    
 
     @classmethod
     def retrieveTags(cls, note):
@@ -94,7 +107,7 @@ class MarkDownFileUtils:
         try:
             MarkDownFileUtils.writeText(title, text, tags, links, resources)
             MarkDownFileUtils.mdFile.create_md_file()
-        except (RuntimeError, ValueError, IndexError) as error:
+        except (RuntimeError, ValueError, IndexError, AttributeError) as error:
             Utils.sendMessage(f"[ERROR: create new fileNote error {error}")
 
 
@@ -119,7 +132,7 @@ class MarkDownFileUtils:
         sorted(MarkDownFileUtils.references)
         
         try:
-            newFile.new_header(level= 1, title=title, style='setext')
+            newFile.new_header(level=1, title=title, style='setext')
             newFile.new_header(level=headerLevel, title='Fecha:', style='setext')
             newFile.new_line(str(Utils.todayDate()))
             newFile.new_line()

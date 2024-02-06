@@ -25,6 +25,7 @@ class Obsidian:
     RESOURCES = 'Añadir recurso'
     KEYS = [FOLDER, TEXT, TITLE, TAGS, RESOURCES]
     IGNORE_FOLDERS = [".obsidian", ".trash"]
+    LAST_NOTE = None
 
 
 # TODOIST
