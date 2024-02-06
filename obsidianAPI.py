@@ -108,13 +108,13 @@ class MarkDownFileUtils:
             MarkDownFileUtils.writeText(title, text, tags, links, resources)
             MarkDownFileUtils.mdFile.create_md_file()
         except (RuntimeError, ValueError, IndexError, AttributeError) as error:
-            Utils.sendMessage(f"[ERROR: create new fileNote error {error}")
+            Utils.sendMessage(f"[ERROR: create new fileNote error - {error}")
 
 
     @classmethod
     def writeText(cls, title, text, tags, links, resources):
 
-        headerLevel = 3
+        headerLevel = 2
         newFile = MarkDownFileUtils.mdFile
         noteTags = ObsidianApi.vault.tags_index
         
@@ -168,6 +168,5 @@ class MarkDownFileUtils:
                     url = links[text]
                     newFile.new_line(newFile.new_inline_link(link=url, text=text.capitalize()))
 
-            
-        except RuntimeError:
-            Utils.sendMessage("[ERROR: bad formating text]")
+        except RuntimeError as error:
+            Utils.sendMessage(f"[ERROR: bad formating text {error}]")
