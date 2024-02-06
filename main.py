@@ -28,7 +28,6 @@ from obsidianAPI import ObsidianApi
 
 
 TelegramBot.initBot()
-Utils.sendMessage(f"[INFO: Iniciando bot de telegram!]]")
 
 
 @TelegramBot.instance.callback_query_handler(func=lambda call: True)
