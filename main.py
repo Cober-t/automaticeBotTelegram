@@ -26,8 +26,8 @@ from obsidianAPI import ObsidianApi
 # timer = Timer(secs, checkDailyTasks)
 # timer.start()
 
-
 TelegramBot.initBot()
+Utils.sendMessage(f"[INFO: Iniciando bot de telegram!]")
 
 
 @TelegramBot.instance.callback_query_handler(func=lambda call: True)
@@ -70,10 +70,6 @@ def menssageConstructor(call):
 def commandDiary(messageObject):    
 
     TelegramBot.lastCommand = messageObject.text
-
-    if TelegramBot.lastCommand not in DATAHOLDER.keys():
-        Utils.sendMessage(ObsidianApi.retrieveNote(messageObject.text))
-        return
 
     markup = InlineKeyboardMarkup()
 
@@ -134,6 +130,12 @@ def formatMessageFolderStructure(folder, content, ignoreFolder, spaces=''):
         message += formatMessageFolderStructure(name, content[name], ignoreFolder, spaces + space)
 
     return message
+
+
+@TelegramBot.instance.message_handler()
+def retrieveNote(messageObject):
+    if messageObject.text not in DATAHOLDER.keys():
+        Utils.sendMessage(ObsidianApi.retrieveNote(messageObject.text))
 
 
 @TelegramBot.instance.message_handler(commands=['carpetas'])
