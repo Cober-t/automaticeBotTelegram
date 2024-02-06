@@ -161,8 +161,8 @@ def commandUpdate(messageObject):
 
     Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
     
-    with subprocess.Popen(["python /home/pi/shared/Otros/updateRepository.py"], shell=True) as process:
-        for line in process.stdout:
+    with subprocess.Popen(["python /home/pi/shared/Otros/updateRepository.py"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        for line in process.std:
             try:
                 Utils.sendMessage(line.decode().rstrip())
             except UnicodeDecodeError as error:
