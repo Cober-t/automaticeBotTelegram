@@ -107,6 +107,7 @@ class MarkDownFileUtils:
         try:
             MarkDownFileUtils.writeText(title, text, tags, links, resources)
             MarkDownFileUtils.mdFile.create_md_file()
+            Utils.sendMessage(f"[INFO: nota creada con éxito!")
         except (RuntimeError, ValueError, IndexError, AttributeError) as error:
             Utils.sendMessage(f"[ERROR: create new fileNote error - {error}")
 
