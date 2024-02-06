@@ -111,4 +111,5 @@ class Utils:
 
     @classmethod
     def todayDate(cls):
-        return date.today()
+        today = date.today()
+        return today.strftime("%d/%m/%y")

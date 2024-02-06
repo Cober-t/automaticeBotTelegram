@@ -42,7 +42,7 @@ class ObsidianApi:
 
         tags = []
         for tag in fileData[Obsidian.TAGS].split(','):
-            tag = CheckGrammar.cleanStartAndEnd(tag)
+            tag = CheckGrammar.cleanStartAndEnd(tag).replace(' ', '_')
             if tag not in tags:
                 tags.append(tag)
 
@@ -114,7 +114,7 @@ class MarkDownFileUtils:
     @classmethod
     def writeText(cls, title, text, tags, links, resources):
 
-        headerLevel = 2
+        headerLevel = 3
         newFile = MarkDownFileUtils.mdFile
         noteTags = ObsidianApi.vault.tags_index
         
