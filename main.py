@@ -145,7 +145,7 @@ def commandPrintFolder(messageObject):
     Utils.sendMessage(formatMessage(folderStructure))
 
 
-@TelegramBot.instance.message_handler(commands=['ultimaNota'])
+@TelegramBot.instance.message_handler(commands=['ultimanota'])
 def commandPrintFolder(messageObject):
     Utils.sendMessage(ObsidianApi.retrieveLastNote())
 
