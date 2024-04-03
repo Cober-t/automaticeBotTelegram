@@ -53,6 +53,7 @@ class ObsidianApi:
         try:
             newFile = MarkDownFileUtils(filePath)
             newFile.createNote(title, text, tags, links, resources)
+            os.chmod(filePath, 0o0777)
         except RuntimeError as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
@@ -96,8 +97,6 @@ class MarkDownFileUtils:
 
     @classmethod
     def __init__(cls, path):
-        
-        print(path)
         MarkDownFileUtils.mdFile = MdUtils(file_name=path)
 
 

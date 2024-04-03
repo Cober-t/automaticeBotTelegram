@@ -41,6 +41,7 @@ class Utils:
                 Utils.checkDestinationFolderExist(subPath)
             if not os.path.exists(path):
                 os.mkdir(path)
+                os.chmod(path, 0o0777)
         except RuntimeError as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
