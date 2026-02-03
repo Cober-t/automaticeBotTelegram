@@ -1,13 +1,13 @@
-pip install language_tool_python
-pip install deepmultilingualpunctuation
-pip install meteostat
-pip install notion
-pip install notion-database
-pip install obsidiantools
-pip install todoist-api-python
-pip install pyTelegramBotAPI
-pip install SpeechRecognition
-pip install mdutils
-pip install gitpython
+language_tool_python
+deepmultilingualpunctuation
+meteostat
+notion
+notion-database
+obsidiantools
+todoist-api-python
+pyTelegramBotAPI
+SpeechRecognition
+mdutils
+gitpython
 
-sudo nano /etc/rc.local
+#sudo nano /etc/rc.local
