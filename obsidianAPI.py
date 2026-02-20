@@ -1,5 +1,6 @@
-import os, re
+import os, re, sys
 
+from pathlib import Path
 from mdutils import MdUtils
 from checkGrammarText import CheckGrammar
 
@@ -17,7 +18,8 @@ class ObsidianApi:
 
     @classmethod
     def initVault(cls):
-        ObsidianApi.vault = obsAPI.Vault(Obsidian.VAULT_DIRECTORY).connect().gather()
+        obsidianPath = Path(Obsidian.VAULT_DIRECTORY)
+        ObsidianApi.vault = obsAPI.Vault(obsidianPath).connect().gather()
         return ObsidianApi.vault
 
 
@@ -36,9 +38,13 @@ class ObsidianApi:
             
             links = Utils.extractLinksFroMessage(fileData[Obsidian.TEXT])
             resources = fileData[Obsidian.RESOURCES]
-        except (IndexError, AttributeError) as error:
-            Utils.sendMessage(f"[ERROR: some fields are empty]")
+        except:
+            exc_value = sys.exc_info()
+            Utils.sendMessage(exc_value)
             return
+        # except (IndexError, AttributeError) as error:
+        #     Utils.sendMessage(f"[ERROR: some fields are empty]")
+        #     return
 
         tags = []
         for tag in fileData[Obsidian.TAGS].split(','):
@@ -46,7 +52,7 @@ class ObsidianApi:
             if tag not in tags:
                 tags.append(tag)
 
-        folderPath = os.path.normpath(Obsidian.VAULT_DIRECTORY + f"/{fileData[Obsidian.FOLDER]}")
+        folderPath = os.path.normpath(Obsidian.VAULT_DIRECTORY + f"/{Obsidian.FOLDER}")
         Utils.checkDestinationFolderExist(folderPath)
         filePath = os.path.normpath(folderPath + f'/{title}.md')
 
@@ -54,8 +60,11 @@ class ObsidianApi:
             newFile = MarkDownFileUtils(filePath)
             newFile.createNote(title, text, tags, links, resources)
             os.chmod(filePath, 0o0777)
-        except RuntimeError as error:
-            Utils.sendMessage(f"[ERROR: {error}]")
+        except:
+            exc_value = sys.exc_info()
+            Utils.sendMessage(exc_value)
+        # except RuntimeError as error:
+        #     Utils.sendMessage(f"[ERROR: {error}]")
 
 
     @classmethod
@@ -66,8 +75,12 @@ class ObsidianApi:
     @classmethod
     def retrieveLastNote(cls):
         if not Obsidian.LAST_NOTE:
-            return
-        return ObsidianApi.retrieveNote(Obsidian.LAST_NOTE)
+            return "There is no last note"
+        try:
+            return ObsidianApi.retrieveNote(Obsidian.LAST_NOTE)
+        except:
+            exc_value = sys.exc_info()
+            return exc_value
     
 
     @classmethod

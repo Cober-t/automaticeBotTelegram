@@ -2,6 +2,7 @@
 import subprocess
 import speech_recognition
 import os
+import sys
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -96,13 +97,17 @@ def getFolderStructure(path, ignoreFolders=None):
     subFolders = {}
     root = os.path.basename(path)
 
-    for folder in os.listdir(path):
+    try:
+        for folder in os.listdir(path):
 
-        if ignoreFolders is not None and folder in ignoreFolders:
-            continue
+            if ignoreFolders is not None and folder in ignoreFolders:
+                continue
 
-        subFoldersPath = os.path.join(path, folder)
-        subFolders.update(getFolderStructure(subFoldersPath, ignoreFolders))
+            subFoldersPath = os.path.join(path, folder)
+            subFolders.update(getFolderStructure(subFoldersPath, ignoreFolders))
+    except:
+        exc_value = sys.exc_info()
+        Utils.sendMessage(exc_value)
 
     dictFolder = {root: subFolders}
 

@@ -19,5 +19,6 @@ class TelegramBot:
     def inifinityPolling(cls):
         if TelegramBot.instance is None:
             TelegramBot.initBot()
+
         TelegramBot.instance.remove_webhook()
         TelegramBot.instance.infinity_polling()

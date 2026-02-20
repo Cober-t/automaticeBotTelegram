@@ -18,12 +18,12 @@ class MetheoData:
 # OBSIDIAN
 class Obsidian:
     VAULT_DIRECTORY = "/home/pi/shared/Otros/ObsidianVault"
-    FOLDER = 'Carpeta'
+    FOLDER = '00 - Fleeting notes'
     TEXT = 'Texto'
     TITLE = 'Titulo'
     TAGS = 'Etiquetas'
     RESOURCES = 'Añadir recurso'
-    KEYS = [FOLDER, TEXT, TITLE, TAGS, RESOURCES]
+    KEYS = [TEXT, TITLE, TAGS, RESOURCES]
     IGNORE_FOLDERS = [".obsidian", ".trash"]
     LAST_NOTE = None
 
@@ -95,7 +95,7 @@ class Help:
     \t\tMEDIA: -- [Titulo, Texto, Autor, Nota, Categoria]\n\n\
     \t\tDIARIO: -- [Titulo, Texto]\n\n\
     \t\tTAREAS: -- [Proyecto, Titulo, Descripcion, Fecha]\n\n\
-    \t\tNOTAS: -- [Carpeta, Titulo, Texto, Fecha, Etiquetas]\n\n\
+    \t\tNOTAS: -- [Titulo, Texto, Fecha, Etiquetas]\n\n\
     \t\tUPDATE: -- Actualiza la herramienta en el server"
 
 
@@ -128,7 +128,7 @@ DATAHOLDER = {
     },
 
     COMMANDS.NOTA: {
-        Obsidian.FOLDER: None,
+        #Obsidian.FOLDER: None,
         Obsidian.TITLE: None,
         Obsidian.TEXT: None,
         Obsidian.TAGS: None,
