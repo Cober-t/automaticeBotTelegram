@@ -30,13 +30,16 @@ from obsidianAPI import ObsidianApi
 
 TelegramBot.initBot()
 
+TelegramBot.inifinityPolling()
+
+#---------------------------------------------------------------
+
 @TelegramBot.instance.callback_query_handler(func=lambda call: True)
 def menssageConstructor(call):
-
+    """ -- """
     TelegramBot.entryData = call.data
 
     if call.data == "Update":
-
         key = TelegramBot.lastCommand
         dictData = DATAHOLDER[key]
         TelegramBot.lastCommand = None
@@ -47,11 +50,10 @@ def menssageConstructor(call):
         
         # Todoist task
         elif key == COMMANDS.TAREA:
-
             # Handle links for title and description
-            links = Utils.extractLinksFroMessage(dictData[Todoist.TITLE])
+            links = Utils.extractLinksFromMessage(dictData[Todoist.TITLE])
             if dictData[Todoist.DESCRIPTION] is not None:
-                links.update(Utils.extractLinksFroMessage(dictData[Todoist.DESCRIPTION]))
+                links.update(Utils.extractLinksFromMessage(dictData[Todoist.DESCRIPTION]))
                 dictData[Todoist.DESCRIPTION] = dictData[Todoist.DESCRIPTION].text
 
             dictData[Todoist.TITLE] = dictData[Todoist.TITLE].text
@@ -59,17 +61,17 @@ def menssageConstructor(call):
 
         # Obsidian note
         elif key == COMMANDS.NOTA:
-
             ObsidianApi.initVault()
             ObsidianApi.createNote(dictData)
-        
 
-###################################
-#||||||| HANDLER COMMANDS ||||||||#
-###################################
+#--------------------------------------------------------------- 
+
+##################################
+#||||||| HANDLER COMMANDS |||||||#
+##################################
 @TelegramBot.instance.message_handler(commands=['diario', 'gastos', 'media', 'tarea', 'nota'])
 def commandDiary(messageObject):    
-
+    """ -- """
     TelegramBot.lastCommand = messageObject.text
 
     markup = InlineKeyboardMarkup()
@@ -82,15 +84,17 @@ def commandDiary(messageObject):
 
     TelegramBot.instance.send_message(messageObject.chat.id, "Rellena estos campos para crear la entrada", reply_markup=markup)
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(commands=['guia'])
 def commandHelp(messageObject):
-    '''Send help and info about the commands and his format'''
+    """Send help and info about the commands and his format"""
     Utils.sendMessage(Help.MESSAGE)
 
+#---------------------------------------------------------------
 
 def getFolderStructure(path, ignoreFolders=None):
-
+    """ -- """
     if os.path.isfile(path):
         return ''
 
@@ -113,16 +117,18 @@ def getFolderStructure(path, ignoreFolders=None):
 
     return dictFolder
 
+#---------------------------------------------------------------
 
 def formatMessage(folderStructure, ignoreFolders=None):
-
+    """ -- """
     root = list(folderStructure.keys())[0]
     message = formatMessageFolderStructure(root, folderStructure[root], ignoreFolders)
     return "~" + message[3:]
 
+#---------------------------------------------------------------
 
 def formatMessageFolderStructure(folder, content, ignoreFolder, spaces=''):
-
+    """ -- """
     if ignoreFolder is not None and folder in ignoreFolder:
         return ''
 
@@ -136,31 +142,36 @@ def formatMessageFolderStructure(folder, content, ignoreFolder, spaces=''):
 
     return message
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(commands=['carpetas'])
 def commandPrintFolder(messageObject):
-    '''Send help and info about the commands and his format'''
+    """Send help and info about the commands and his format"""
     folderStructure = getFolderStructure(Obsidian.VAULT_DIRECTORY, Obsidian.IGNORE_FOLDERS)
     Utils.sendMessage(formatMessage(folderStructure))
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(commands=['ultimanota'])
 def commandPrintFolder(messageObject):
+    """ -- """
     Utils.sendMessage(ObsidianApi.retrieveLastNote())
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(commands=['etiquetas'])
 def commandPrintTags(messageObject):
-    '''Send help and info about the commands and his format'''
+    """Send help and info about the commands and his format"""
     message = ''
     for tag in ObsidianApi.retrieveAllTags():
         message += tag + "\t"
     Utils.sendMessage(message[:-1])
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(commands=['update'])
 def commandUpdate(messageObject):
-    '''Update the API on the Raspberry'''
+    """Update the API on the Raspberry"""
     import subprocess
 
     Utils.sendMessage(f"[INFO: Actualizando repositorio...]]")
@@ -174,10 +185,11 @@ def commandUpdate(messageObject):
         
     Utils.sendMessage(f"[INFO: Reiniciando server...]]")
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(commands=['boot'])
 def commandBoot(messageObject):
-    '''Update the API on the Raspberry'''
+    """Update the API on the Raspberry"""
     import subprocess
 
     Utils.sendMessage(f"[INFO: Encendiendo ordenador...]]")
@@ -189,14 +201,14 @@ def commandBoot(messageObject):
         if err:
             Utils.sendMessage(err)
 
-
+#---------------------------------------------------------------
 
 ###################################
 #|||||||| HANDLER MESSAGES |||||||#
 ###################################
 @TelegramBot.instance.message_handler(content_types=['text'])
 def message_handler(messageObject):
-
+    """ -- """
     if not TelegramBot.lastCommand:
         Utils.sendMessage(ObsidianApi.retrieveNote(messageObject.text))
         return
@@ -213,12 +225,13 @@ def message_handler(messageObject):
         if page == COMMANDS.NOTA and entry == Obsidian.TEXT:
             DATAHOLDER[page][entry] = messageObject
 
+#---------------------------------------------------------------
 
 ###################################
 #||||||| HANDLER RESOURCES |||||||#
 ###################################
 def saveResourceInObsidian(filePath, name, downloadedFile):
-
+    """ -- """
     page = TelegramBot.lastCommand
     entry = TelegramBot.entryData
 
@@ -232,10 +245,11 @@ def saveResourceInObsidian(filePath, name, downloadedFile):
         with open(filePath, 'wb') as document:
             document.write(downloadedFile)
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(content_types=['video'])
 def message_handler(messageObject):
-
+    """ -- """
     try:
         downloadedFile, fileName = Utils.getFile(messageObject.video)
         if messageObject.caption:
@@ -249,10 +263,11 @@ def message_handler(messageObject):
     except TypeError as error:
         Utils.sendMessage(f"[ERROR : {error}]")
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(content_types=['document'])
 def message_handler(messageObject):
-
+    """ -- """
     try:
         downloadedFile, fileName = Utils.getFile(messageObject.document)
         if messageObject.caption:
@@ -267,10 +282,11 @@ def message_handler(messageObject):
     except TypeError as error:
         Utils.sendMessage(f"[ERROR : {error}]")
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(content_types=['photo'])
 def message_handler(messageObject):
-
+    """ -- """
     try:
         downloadedFile, fileName = Utils.getFile(messageObject.photo[-1])
         if messageObject.caption:
@@ -285,9 +301,11 @@ def message_handler(messageObject):
     except TypeError as error:
         Utils.sendMessage(f"[ERROR : {error}]")
 
+#---------------------------------------------------------------
 
 @TelegramBot.instance.message_handler(content_types=['voice'])
 def voice_handler(messageObject):
+    """ -- """
     fileId = messageObject.voice.file_id
     fileData = TelegramBot.instance.get_file(fileId)
 
@@ -312,5 +330,4 @@ def voice_handler(messageObject):
         except TypeError as error:
             Utils.sendMessage(f"[ERORR : {error}]")
 
-
-TelegramBot.inifinityPolling()
+#---------------------------------------------------------------

@@ -1,4 +1,4 @@
-import os, re, sys
+import os, re
 
 from pathlib import Path
 from mdutils import MdUtils
@@ -13,34 +13,51 @@ import obsidiantools.api as obsAPI
 
 
 class ObsidianApi:
+    """Summary of class here
+
+    Attributes:
+        vault (str): telegram instance
+
+    Methods:
+        initVault(): 
+        getVault(): 
+        createNote(): 
+        retrieveNote(): 
+        retrieveLastNote(): 
+        retrieveTags(): 
+        retrieveAllTags(): 
+    """
 
     vault = None
 
     @classmethod
     def initVault(cls):
+        """ -- """
         obsidianPath = Path(Obsidian.VAULT_DIRECTORY)
         ObsidianApi.vault = obsAPI.Vault(obsidianPath).connect().gather()
         return ObsidianApi.vault
 
+    #---------------------------------------------------------------
 
     @classmethod
     def getVault(cls):
+        """ -- """
         return ObsidianApi.initVault()
 
+    #---------------------------------------------------------------
 
     @classmethod
     def createNote(cls, fileData):
-
+        """ -- """
         try:
             title = CheckGrammar.cleanStartAndEnd(fileData[Obsidian.TITLE])
             text = CheckGrammar.cleanStartAndEnd(fileData[Obsidian.TEXT].text)
             Obsidian.LAST_NOTE = title
             
-            links = Utils.extractLinksFroMessage(fileData[Obsidian.TEXT])
+            links = Utils.extractLinksFromMessage(fileData[Obsidian.TEXT])
             resources = fileData[Obsidian.RESOURCES]
         except:
-            exc_value = sys.exc_info()
-            Utils.sendMessage(exc_value)
+            Utils.sendError()
             return
         # except (IndexError, AttributeError) as error:
         #     Utils.sendMessage(f"[ERROR: some fields are empty]")
@@ -52,44 +69,52 @@ class ObsidianApi:
             if tag not in tags:
                 tags.append(tag)
 
-        folderPath = os.path.normpath(Obsidian.VAULT_DIRECTORY + f"/{Obsidian.FOLDER}")
-        Utils.checkDestinationFolderExist(folderPath)
-        filePath = os.path.normpath(folderPath + f'/{title}.md')
+        #Utils.checkDestinationFolderExist(folderPath)
+        filePath = os.path.join(Obsidian.VAULT_DIRECTORY, Obsidian.FOLDER, '{title}.md')
+        Utils.sendMessage(f"[INFO: Trying to create a note on Obsidian Path: {filePath}")
 
         try:
             newFile = MarkDownFileUtils(filePath)
             newFile.createNote(title, text, tags, links, resources)
             os.chmod(filePath, 0o0777)
         except:
-            exc_value = sys.exc_info()
-            Utils.sendMessage(exc_value)
+            Utils.sendError()
         # except RuntimeError as error:
         #     Utils.sendMessage(f"[ERROR: {error}]")
 
 
+    #---------------------------------------------------------------
+
     @classmethod
     def retrieveNote(cls, noteName):
+        """ Obsidian will search in the entire vault for the text of the requested note.
+            Maybe is better to relay on an own implementation because the Obsidian api is really slow"""
         return ObsidianApi.getVault().get_readable_text(noteName)
     
+    #---------------------------------------------------------------
 
     @classmethod
     def retrieveLastNote(cls):
+        """ -- """
         if not Obsidian.LAST_NOTE:
             return "There is no last note"
         try:
             return ObsidianApi.retrieveNote(Obsidian.LAST_NOTE)
         except:
-            exc_value = sys.exc_info()
-            return exc_value
+            return Utils.sendError()
     
+    #---------------------------------------------------------------
 
     @classmethod
     def retrieveTags(cls, note):
+        """ -- """
         return ObsidianApi.getVault().get_tags(note)
     
+    #---------------------------------------------------------------
 
     @classmethod
     def retrieveAllTags(cls):
+        """ -- """
         tagsInFileNames = ObsidianApi.getVault().tags_index
 
         result = []
@@ -102,20 +127,33 @@ class ObsidianApi:
 
 
 class MarkDownFileUtils:
-    '''Utils for manage files from Obsidian'''
+    """Utils for manage files from Obsidian
+
+    Attributes:
+        mdFile (str):
+        allTags (strList): 
+        references (strList):
+
+    Methods:
+        createNote(): 
+        writeText(): 
+    """
 
     mdFile = None
     allTags = []
     references = []
 
+    #---------------------------------------------------------------
+
     @classmethod
     def __init__(cls, path):
         MarkDownFileUtils.mdFile = MdUtils(file_name=path)
 
+    #---------------------------------------------------------------
 
     @classmethod
     def createNote(cls, title, text, tags, links, resources):
-
+        """ -- """
         try:
             MarkDownFileUtils.writeText(title, text, tags, links, resources)
             MarkDownFileUtils.mdFile.create_md_file()
@@ -123,10 +161,11 @@ class MarkDownFileUtils:
         except (RuntimeError, ValueError, IndexError, AttributeError) as error:
             Utils.sendMessage(f"[ERROR: create new fileNote error - {error}")
 
+    #---------------------------------------------------------------
 
     @classmethod
     def writeText(cls, title, text, tags, links, resources):
-
+        """ -- """
         headerLevel = 2
         newFile = MarkDownFileUtils.mdFile
         noteTags = ObsidianApi.vault.tags_index
@@ -183,3 +222,5 @@ class MarkDownFileUtils:
 
         except RuntimeError as error:
             Utils.sendMessage(f"[ERROR: bad formating text {error}]")
+
+    #---------------------------------------------------------------

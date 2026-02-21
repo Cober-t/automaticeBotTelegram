@@ -50,27 +50,50 @@ class NotionProperty():
 #||||||||||||| UTILS |||||||||||||#
 ###################################
 class NotionUtils:
+    """Summary of class here
+
+    Attributes:
+        S(): search Notion Api
+        P(): page Notion Api
+        D(): database Notion Api
+
+    Methods:
+        getProperties(): 
+        getPropertyNames(): 
+        getTagValues(): 
+        createPage(): 
+        retrieveDatabase(): 
+        findPage(): 
+        updateDatabase(): 
+    """
+
     S = Search(integrations_token=NotionIDs.TOKEN)
     P = Page(integrations_token=NotionIDs.TOKEN)
     D = Database(integrations_token=NotionIDs.TOKEN)
 
+    #---------------------------------------------------------------
 
     @classmethod
     def getProperties(cls, ID):
+        """ -- """
         try:
             NotionUtils.D.retrieve_database(ID, get_properties=True)
             return NotionUtils.D.properties_list
         except (ValueError, TypeError) as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
+    #---------------------------------------------------------------
 
     @classmethod
     def getPropertyNames(cls, ID):
+        """ -- """
         return [properties["name"] for properties in cls.getProperties(ID)]
 
+    #---------------------------------------------------------------
 
     @classmethod
     def getTagValues(cls, ID):
+        """ -- """
         values = []
         properties = cls.getProperties(ID)
 
@@ -86,25 +109,32 @@ class NotionUtils:
 
         return values
 
+    #---------------------------------------------------------------
 
     @classmethod
     def createPage(cls, ID, properties):
+        """ -- """
         try:
             NotionUtils.P.create_page(database_id=ID, properties=properties)
         except (ValueError, TypeError) as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
 
+    #---------------------------------------------------------------
+
     @classmethod
     def retrieveDatabase(cls, ID, getProperties=True):
+        """ -- """
         try:
             NotionUtils.D.retrieve_database(database_id=ID, get_properties=getProperties)
         except (ValueError, TypeError) as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
+    #---------------------------------------------------------------
 
     @classmethod
     def findPage(cls, ID, pageSize):
+        """ -- """
         try:
             NotionUtils.D.find_all_page(database_id=ID, page_size=pageSize)
         except (ValueError, TypeError) as error:
@@ -114,21 +144,33 @@ class NotionUtils:
             return NotionUtils.D.result["result"]
         return None
 
+    #---------------------------------------------------------------
 
     @classmethod
     def updateDatabase(cls, ID, title, newPropertiesToAdd):
+        """ -- """
         NotionUtils.D.update_database(database_id=ID, title=title, add_properties=newPropertiesToAdd)
 
-
+    #---------------------------------------------------------------
 
 ###################################
 #|||||||||||||| API ||||||||||||||#
 ###################################
 class NotionApi:
+    """Summary of class here
+
+    Attributes:
+
+    Methods:
+        createPage(): 
+        createProperties(): 
+    """
+
+    #---------------------------------------------------------------
 
     @classmethod
     def createPage(cls, ID, fileData):
-
+        """ -- """
         try:
             properties = NotionApi.createProperties(fileData)
             if properties:
@@ -139,10 +181,11 @@ class NotionApi:
         except (RuntimeError, ValueError, IndexError) as error:
             Utils.sendMessage(f"[ERROR: {error}]")
 
+    #---------------------------------------------------------------
 
     @classmethod
     def createProperties(cls, fileData):
-
+        """ -- """
         newProperty = NotionProperty()
         
         for entryKey in fileData:
@@ -185,3 +228,5 @@ class NotionApi:
                 Utils.sendMessage(f"[ERROR: Invalid key data for {entryKey}]")
 
         return newProperty.property
+
+    #---------------------------------------------------------------

@@ -4,6 +4,17 @@
 
 
 class CheckGrammar:
+    """Summary of class here
+
+    Attributes:
+
+    Methods:
+        checkGrammar(): 
+        checkPuntuaction(): 
+        cleanStartAndEnd(): 
+    """
+
+    #---------------------------------------------------------------
 
     @classmethod
     def checkGrammar(cls, text, language):
@@ -11,6 +22,7 @@ class CheckGrammar:
         # return tool.correct(text)
         return text
 
+    #---------------------------------------------------------------
 
     @classmethod
     def checkPuntuaction(cls, text):
@@ -18,6 +30,7 @@ class CheckGrammar:
         # return model.restore_punctuation(text)
         return text
 
+    #---------------------------------------------------------------
 
     @classmethod
     def cleanStartAndEnd(cls, text):
@@ -32,3 +45,5 @@ class CheckGrammar:
             text = text[:-1]
 
         return text
+    
+    #---------------------------------------------------------------

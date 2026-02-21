@@ -1,7 +1,7 @@
 '''Main Utils class'''
-import os
-from datetime import date
+import sys
 
+from datetime import date
 from definitions import Telegram
 from telebot.types import MessageEntity
 from checkGrammarText import CheckGrammar
@@ -9,17 +9,40 @@ from telegramBot import TelegramBot
 
 
 class Utils:
+    """Summary of class here
 
+    Attributes:
+
+    Methods:
+        sendMessage(): 
+        sendError(): 
+        fixFullText(): 
+        getDictData(): 
+        getFile(): 
+        extractLinksFromMessage(): 
+        todayDate(): 
+    """
+    #---------------------------------------------------------------
 
     @classmethod
     def sendMessage(cls, message):
-
+        """ -- """
         TelegramBot.instance.send_message(Telegram.CHAT_ID, message)
 
+    #---------------------------------------------------------------
+
+    @classmethod
+    def sendError(cls):
+        """ -- """
+        exc_value = sys.exc_info()
+        Utils.sendMessage(exc_value)
+        return exc_value
+
+    #---------------------------------------------------------------
 
     @classmethod
     def fixFullText(cls, text, language='es'):
-
+        """ -- """
         if text != '' and text is not None:
             text = CheckGrammar.cleanStartAndEnd(text)
             if language == 'es':
@@ -31,24 +54,11 @@ class Utils:
 
         return text
 
-
-    @classmethod
-    def checkDestinationFolderExist(cls, path):
-
-        try:
-            subPath = os.path.dirname(path)
-            if not os.path.exists(subPath):
-                Utils.checkDestinationFolderExist(subPath)
-            if not os.path.exists(path):
-                os.mkdir(path)
-                os.chmod(path, 0o0777)
-        except RuntimeError as error:
-            Utils.sendMessage(f"[ERROR: {error}]")
-
+    #---------------------------------------------------------------
 
     @classmethod
     def getDictData(cls, message, keysToCheck):
-
+        """ -- """
         dictResult = {}
         rawMessage = message
         message = message.lower()
@@ -78,10 +88,12 @@ class Utils:
             dictResult.update({key: finalValue})
 
         return dictResult
-    
+
+    #---------------------------------------------------------------
 
     @classmethod
     def getFile(cls, fileObject):
+        """ -- """
         fileID = fileObject.file_id
         fileInfo = TelegramBot.instance.get_file(fileID)
         fileName = fileInfo.file_path.split('/')[-1]
@@ -89,10 +101,11 @@ class Utils:
 
         return downloadedFile, fileName
 
+    #---------------------------------------------------------------
 
     @classmethod
-    def extractLinksFroMessage(cls, messageObject):
-
+    def extractLinksFromMessage(cls, messageObject):
+        """ -- """
         if messageObject.entities is None:
             return {}
         
@@ -110,7 +123,12 @@ class Utils:
         return links
 
 
+    #---------------------------------------------------------------
+
     @classmethod
     def todayDate(cls):
-        today = date.today()
-        return today.strftime("%d/%m/%y")
+        """ -- """
+        return date.today().strftime("%d/%m/%y")
+
+    #---------------------------------------------------------------
+

@@ -1,10 +1,13 @@
-'''Main definitions'''
+"""Main definitions"""
+
+#---------------------------------------------------------------
 
 # TelegramBot
 class Telegram:
     CHAT_ID = 5915979478
     BOT_TOKEN = "6239437612:AAEle5IFdMBBwzPudIVfRgkj_JKHh2bMxIY"
 
+#---------------------------------------------------------------
 
 # METHEODATA
 class MetheoData:
@@ -14,6 +17,7 @@ class MetheoData:
         "alt":  654.1
         }
 
+#---------------------------------------------------------------
 
 # OBSIDIAN
 class Obsidian:
@@ -27,6 +31,7 @@ class Obsidian:
     IGNORE_FOLDERS = [".obsidian", ".trash"]
     LAST_NOTE = None
 
+#---------------------------------------------------------------
 
 # TODOIST
 class Todoist:
@@ -42,7 +47,9 @@ class Todoist:
     INBOX_ID = "2210170146"
     KEYS = [PROJECT, TITLE, DESCRIPTION, DATE]
 
+#---------------------------------------------------------------
 
+# NOTION
 class NotionIDs:
     PAGE_ID= "a6b2c97738a34e7ab49eb52ec61295bf"
     TOKEN  = "secret_xIG8raDuQGnWIOBeZcPDT1lxwPt11saBZ7nha3bsJcf"
@@ -53,6 +60,7 @@ class NotionIDs:
     MEDIA  = "6dcd686f2d174a8d9fbe31c2ad7b380f"
     TASK_LIST  = "116fab72255b40328062fb34bc01e12c"
 
+#---------------------------------------------------------------
 
 class NotionProperties:
     TITLE = "Titulo"
@@ -65,6 +73,7 @@ class NotionProperties:
     RATING = "Nota"
     PROPERTIES = [TITLE, TEXT, AMOUNT, PRICE, TAGS, CATEGORY, AUTHOR, RATING]
 
+#---------------------------------------------------------------
 
 class NotionPages:
     DIARIO = "Diario"
@@ -72,7 +81,9 @@ class NotionPages:
     MEDIA = "Media"
     KEYS = { DIARIO: NotionIDs.DIARIO, GASTOS: NotionIDs.GASTOS, MEDIA: NotionIDs.MEDIA }
     
+#---------------------------------------------------------------
 
+# TELEGRAM COMMANDS
 class COMMANDS:
     DIARIO = "/diario"
     GASTOS = "/gastos"
@@ -82,6 +93,7 @@ class COMMANDS:
     KEYS = [DIARIO, GASTOS, MEDIA, TAREA, NOTA]
     NOTION_ID_DICT = {DIARIO: NotionIDs.DIARIO, GASTOS: NotionIDs.GASTOS, MEDIA: NotionIDs.MEDIA}
 
+#---------------------------------------------------------------
 
 class Help:
 
@@ -98,7 +110,9 @@ class Help:
     \t\tNOTAS: -- [Titulo, Texto, Fecha, Etiquetas]\n\n\
     \t\tUPDATE: -- Actualiza la herramienta en el server"
 
+#---------------------------------------------------------------
 
+# SERIALIZER
 DATAHOLDER = {
     
     COMMANDS.DIARIO: {
@@ -135,3 +149,5 @@ DATAHOLDER = {
         Obsidian.RESOURCES: None,
     }
 }
+
+#---------------------------------------------------------------
