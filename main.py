@@ -30,8 +30,6 @@ from obsidianAPI import ObsidianApi
 
 TelegramBot.initBot()
 
-TelegramBot.inifinityPolling()
-
 #---------------------------------------------------------------
 
 @TelegramBot.instance.callback_query_handler(func=lambda call: True)
@@ -329,5 +327,9 @@ def voice_handler(messageObject):
 
         except TypeError as error:
             Utils.sendMessage(f"[ERORR : {error}]")
+
+#---------------------------------------------------------------
+
+TelegramBot.inifinityPolling()
 
 #---------------------------------------------------------------
