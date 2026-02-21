@@ -70,7 +70,7 @@ class ObsidianApi:
                 tags.append(tag)
 
         #Utils.checkDestinationFolderExist(folderPath)
-        filePath = os.path.join(Obsidian.VAULT_DIRECTORY, Obsidian.FOLDER, '{title}.md')
+        filePath = os.path.join(Obsidian.VAULT_DIRECTORY, Obsidian.FOLDER, f'{title}.md')
         Utils.sendMessage(f"[INFO: Trying to create a note on Obsidian Path: {filePath}")
 
         try:
