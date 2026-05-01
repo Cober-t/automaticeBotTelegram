@@ -40,7 +40,6 @@ class Todoist:
     PROJECT = "Proyecto"
     DATE = "Fecha"
     TOKEN = "f290c9540c7063f6378da720e097f79959afda2b"
-    INBOX_ID = "2210170146"
     KEYS = [PROJECT, TITLE, DESCRIPTION, DATE]
 
 #---------------------------------------------------------------

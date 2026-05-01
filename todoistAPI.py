@@ -64,7 +64,7 @@ class TodoistHelper:
     #---------------------------------------------------------------
 
     @classmethod
-    def addTask(cls, title, projectID=Todoist.INBOX_ID, content='', due=None):
+    def addTask(cls, title, projectID, content='', due=None):
         """ -- """
         try:
             if content is None:
@@ -93,7 +93,7 @@ class TodoistApi:
     #---------------------------------------------------------------
 
     @classmethod
-    def getProjectTasks(cls, projectID=Todoist.INBOX_ID):
+    def getProjectTasks(cls, projectID=None):
         """ -- """
         return [task for task in TodoistHelper.api.get_tasks() if task.project_id == projectID]
 
@@ -110,7 +110,7 @@ class TodoistApi:
     def getProjectID(cls, projectName):
         """ -- """
         if not projectName:
-             return Todoist.INBOX_ID
+            return None
 
         projectList = list(TodoistHelper.api.get_projects())
         for project in projectList:
@@ -130,9 +130,7 @@ class TodoistApi:
         description = taskInfo[Todoist.DESCRIPTION]
 
         if links is not None:
-
             for hiperlink in links:
-                
                 url = links[hiperlink]
                 title = title.replace(hiperlink, f"[{hiperlink}]({url})")
 
@@ -146,6 +144,7 @@ class TodoistApi:
             description = CheckGrammar.cleanStartAndEnd(description)
 
         date = taskInfo[Todoist.DATE]
+
         project = TodoistApi.getProjectID(taskInfo[Todoist.PROJECT])
 
         TodoistHelper.addTask(title, project, description, date)
