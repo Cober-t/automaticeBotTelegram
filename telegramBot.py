@@ -12,8 +12,8 @@ class TelegramBot:
         entryData (str): category of the command where the user input will be saved
 
     Methods:
-        initBot(): 
-        inifinityPolling(): 
+        initBot():
+        inifinityPolling():
     """
 
     instance = None

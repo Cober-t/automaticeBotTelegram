@@ -112,7 +112,7 @@ class TodoistApi:
         if not projectName:
              return Todoist.INBOX_ID
 
-        projectList = TodoistHelper.api.get_projects()
+        projectList = list(TodoistHelper.api.get_projects())
         for project in projectList:
             for p in project:
                 if projectName.lower() == p.name.lower():
