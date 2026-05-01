@@ -38,28 +38,28 @@ class TodoistHelper:
     @classmethod
     async def getProjectsAsync(cls):
         """ -- """
-        return TodoistHelper.apiAsync.get_projects()
+        return cls.apiAsync.get_projects()
 
     #---------------------------------------------------------------
 
     @classmethod
     def getProjects(cls):
         """ -- """
-        return TodoistHelper.api.get_projects()
+        return cls.api.get_projects
 
     #---------------------------------------------------------------
 
     @classmethod
     async def getTasksAsync(cls):
         """ -- """
-        return TodoistHelper.apiAsync.get_tasks()
+        return cls.apiAsync.get_tasks()
 
     #---------------------------------------------------------------
 
     @classmethod
     def getTasks(cls):
         """ -- """
-        return TodoistHelper.api.get_tasks()
+        return cls.api.get_tasks()
     
     #---------------------------------------------------------------
 
@@ -70,6 +70,7 @@ class TodoistHelper:
             if content is None:
                 content = ''
             task = TodoistHelper.api.add_task(content=title, project_id=projectID, description=content, due_string=due)
+            Utils.sendMessage(f"[ADD TASK: - Content: {title} - ProjectID: {projectID}]")
         except (RuntimeError, ValueError, IndexError) as error:
             Utils.sendMessage(f"[ERROR: {error} - Content: {title} - ProjectID: {projectID}]")
 
@@ -83,8 +84,6 @@ class TodoistApi:
     Attributes:
         
     Methods:
-        getProjectAsync(): 
-        getProjectSync(): 
         getProjectTasks(): 
         getProjectNames(): 
         getProjectID(): 
@@ -94,36 +93,16 @@ class TodoistApi:
     #---------------------------------------------------------------
 
     @classmethod
-    async def getProjectsAsync(cls):
-        """ -- """
-        try:
-            return await TodoistHelper.getProjectsAsync()
-        except Exception as error:
-            Utils.sendMessage(f"[ERROR: {error}]")
-
-    #---------------------------------------------------------------
-
-    @classmethod
-    def getProjectsSync(cls):
-        """ -- """
-        try:
-            return TodoistHelper.getProjects()
-        except Exception as error:
-            Utils.sendMessage(f"[ERROR: {error}]")
-
-    #---------------------------------------------------------------
-
-    @classmethod
     def getProjectTasks(cls, projectID=Todoist.INBOX_ID):
         """ -- """
-        return [task for task in TodoistHelper.getTasks() if task.project_id == projectID]
+        return [task for task in TodoistHelper.api.get_tasks() if task.project_id == projectID]
 
     #---------------------------------------------------------------
 
     @classmethod
     def getProjectNames(cls):
         """ -- """
-        return [project.name for project in TodoistHelper.getProjects()]
+        return [p.name for project in TodoistHelper.api.get_projects() for p in project]
 
     #---------------------------------------------------------------
 
@@ -131,10 +110,13 @@ class TodoistApi:
     def getProjectID(cls, projectName):
         """ -- """
         if not projectName:
-            return Todoist.INBOX_ID
-        for project in TodoistHelper.getProjects():
-            if projectName.lower() == project.name.lower():
-                return project.id
+             return Todoist.INBOX_ID
+
+        projectList = TodoistHelper.api.get_projects()
+        for project in projectList:
+            for p in project:
+                if projectName.lower() == p.name.lower():
+                    return p.id
 
         return None
 
